@@ -1,1 +1,1 @@
-# scaling-slides
+# word-games
