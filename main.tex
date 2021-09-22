@@ -11,10 +11,11 @@
 \usepackage{pgfplots}
 \usepackage{subcaption}
 
-%\usepackage{natbib}
-\usepackage[style=authortitle,backend=biber]{biblatex}
-\addbibresource{anthology.bib}
-\addbibresource{emnlp2020.bib}
+\usepackage{natbib}
+\bibliographystyle{apalike}
+%\usepackage[style=authortitle,backend=biber]{biblatex}
+%\addbibresource{anthology.bib}
+%\addbibresource{emnlp2020.bib}
 \renewcommand{\footnotesize}{\scriptsize}
 
 \usepackage{tikz-dependency}
@@ -68,33 +69,153 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{frame}
 
 \begin{frame}
-\frametitle{Language Games}
+\frametitle{Natural Language Interaction}
 \begin{itemize}
-\item Interaction is important 
+\item Interaction (through language) is important 
     \begin{itemize}
     \item Cannot fully automate every task,
         i.e. task-oriented or information seeking dialogues
-    \item Must handle diverse human input, although they may map
-        to a low-dimensional manifold
+        require human input
+    \item Must handle diverse non-expert human input,
+        although input may map to a low-dimensional manifold
+    \item High levels of ambiguity must be resolved via interaction
     \end{itemize}
-\item Interaction is hard 
+\item Interaction (through language) is hard 
     \begin{itemize}
-    \item Human input is expensive and therefore limited
+    \item Human input is expensive, so supervision is limited
     \item In order to make certain problem aspects tractable,
-        must make sacrifices in other
+        must make sacrifices in other areas
         (toy domain = out of distribution for pretrained models)
     \end{itemize}
-\item What are the main challenges in language games,
+\item What are the main challenges in interaction,
     and what are the tradeoffs of different approaches?
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Types of Dialogue Games}
+\begin{itemize}
+
+\item Task-oriented: Wizard of Oz (WoZ)
+    \begin{itemize}
+    \item \citet{tseng2019semisupdialogue}: Wizard obtains
+        task from human then executes it.
+    \end{itemize}
+\item Deliberation / reference / signal
+    \begin{itemize}
+    \item \citet{udagawa2019oc}: Visual reference game
+        with latent translated views.
+        Each player gets a different petri dish view
+        of the same underlying game board, and players must
+        select the same object on the board.
+    \end{itemize}
+\item Information seeking / inquiry
+    \begin{itemize}
+    \item \citet{yu2019questions}: WoZ-style answer providing
+        where asker does not know exact question.
+        Latent true question (to all), WoZ must answer
+    \end{itemize}
+\item Persuasion / negotiation
+    \begin{itemize}
+    \item \citet{lewis2017dnd}: Negotiation over an observed
+        set of item with latent utilities for each agent.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Types of Dialogue Games}
+In all cases, the game can be (indirectly) solved by resolving a latent variable
+
+\begin{itemize}
+\item When is this tractable, and why do no new methods do this?
+\item New (ie basically all) methods rely on supervision
+\item If they do not, it is because the game has a trivial solution
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Types of Dialogue Games: Latent goals and strategy}
+What are the latent variables in each type?
+\begin{itemize}
+\item Task-oriented
+    \begin{itemize}
+    \item Latent task slots
+    \end{itemize}
+\item Deliberation / reference / signal
+    \begin{itemize}
+    \item Varies per game
+    \end{itemize}
+\item Information seeking / inquiry
+    \begin{itemize}
+    \item Infer true question, find answer
+    \end{itemize}
+\item Persuasion / negotiation
+    \begin{itemize}
+    \item Infer utilities, exploit
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Types of Dialogue Games: Latent goals and strategy}
+\begin{itemize}
+\item Tasks must be interesting enough so that
+    latent quantities cannot be inferred with a single utterance,
+    reducing them to single turn games
+    \begin{itemize}
+    \item High degree of ambiguity / distractors
+        or large number of slots to fill (combinatorial)
+    \end{itemize}
+\item Break down latent quantities and use heuristics
+    to make assumptions on structure
+    \begin{itemize}
+    \item For example, choosing an ordering of WoZ slots:
+        When choosing a restaurant, first figure out
+        time, then cuisine, and finally price
+    \item Will likely remain task-specific
+    \end{itemize}
+\item What other parts can we learn?
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Belief State Tracking}
+\begin{itemize}
+\item The incremental inference procedure is known as belief state tracking (BST)
+\item Local semantics are aggregated into belief state, which informs
+    high-level strategic decisions
+\item Seems difficult to learn language, high level strategy,
+    belief state updating, and low level parsing at the same time
+\item Ablate how structure influences each of these
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Language Games}
+
+\begin{itemize}
+\item Games offer a testbed for the development of methods
+    \begin{itemize}
+    \item Allow designers to control difficulty and simplicity
+    \end{itemize}
+\item Allowing interaction through language increases the population of players
+\item 
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{3 Challenges in Language Games}
 \begin{enumerate}
+\item Game design
+    \begin{itemize}
+    \item Simplification of or step towards a realistic task
+    \item Must be fun or useful
+    \end{itemize}
 \item Meaning representations
     \begin{itemize}
-    \item A
+    \item 
     \end{itemize}
 \item Search
     \begin{itemize}
@@ -105,13 +226,6 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
     \item A
     \end{itemize}
 \end{enumerate}
-\end{frame}
-
-\begin{frame}
-\frametitle{Types of Games}
-\begin{itemize}
-\item 
-\end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -158,9 +272,33 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{itemize}
 \end{frame}
 
+\begin{frame}
+\frametitle{Contributions}
+\begin{itemize}
+\item Under a unified Bayesian game perspective of dialog games,
+    present formulations for different classes of dialogs:
+    signaling, negotation?
+\item Provide pipelined variational Bayesian framework for learning
+    to play dialog games from offline data,
+    with and without granular annotations
+\item Good results
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Tasks}
+\begin{itemize}
+\item Task-oriented dialogue: Multi-WoZ
+\item Negotation: Deal-or-no-deal
+\item Reference: OneCommon
+\item Information-Seeking: Birds
+\end{itemize}
+\end{frame}
+
 \begin{frame}[allowframebreaks]
 \frametitle{Citations}
-\printbibliography
+%\printbibliography
+\bibliography{anthology.bib}
 \end{frame}
 
 \end{document}
