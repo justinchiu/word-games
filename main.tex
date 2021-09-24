@@ -69,6 +69,36 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{frame}
 
 \begin{frame}
+\frametitle{3 Challenges}
+\begin{itemize}
+\item Modular models
+    \begin{itemize}
+    \item Dialogue model = local meaning representation -
+        belief state - dialog act - utterance generation
+    \item Various works supervise particular parts
+        then leave others to be implicitly learned through
+        neural nets
+    \item Results in very task-specific architectures
+    \item Can we break down tasks to allow for
+        more component sharing across different tasks, as well as
+        semi-supervised learning?
+    \end{itemize}
+\item Less complicated meaning representations
+    \begin{itemize}
+    \item Meaning representations vary in granularity
+    \item Can we learn a minimal task-specific subset of a meaning
+        representation formalism?
+    \end{itemize}
+\item Adapting to partners
+    \begin{itemize}
+    \item Partner model allows forward modeling, learned over
+        a multiple round game or repeated games
+    \item Adapt opaque neural model or hierarchical bayesian model?
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
 \frametitle{Natural Language Interaction}
 \begin{itemize}
 \item Interaction (through language) is important 
@@ -201,48 +231,6 @@ What are the latent variables in each type?
     \item Allow designers to control difficulty and simplicity
     \end{itemize}
 \item Allowing interaction through language increases the population of players
-\item 
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{3 Challenges in Language Games}
-\begin{enumerate}
-\item Game design
-    \begin{itemize}
-    \item Simplification of or step towards a realistic task
-    \item Must be fun or useful
-    \end{itemize}
-\item Meaning representations
-    \begin{itemize}
-    \item 
-    \end{itemize}
-\item Search
-    \begin{itemize}
-    \item A
-    \end{itemize}
-\item Modeling other agents
-    \begin{itemize}
-    \item A
-    \end{itemize}
-\end{enumerate}
-\end{frame}
-
-\begin{frame}
-\frametitle{Axes of Tractability}
-\begin{itemize}
-\item Horizon length
-    \begin{itemize}
-    \item B
-    \end{itemize}
-\item Action space
-    \begin{itemize}
-    \item B
-    \end{itemize}
-\item A
-    \begin{itemize}
-    \item B
-    \end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -265,12 +253,6 @@ What are the latent variables in each type?
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Learning to plan}
-\begin{itemize}
-\item 
-\end{itemize}
-\end{frame}
 
 \begin{frame}
 \frametitle{Contributions}
