@@ -69,6 +69,73 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{frame}
 
 \begin{frame}
+\frametitle{Motivation: Why OneCommon}
+\begin{itemize}
+\item OneCommon is all about referring expressions (resolving / generating)
+\item Focus on improving reference resolver, text has more noise
+\item Improve generation using reference resolver
+\item Goal: Reduce as much learning as possible to reference resolver
+\item Impact: Need to carry over to referring expressions in other settings
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Current OneCommon Performance}
+\begin{itemize}
+\item How can we improve the reference resolver?
+    \begin{itemize}
+    \item Best model gets 93\% accuracy 78\% exact match
+    \item Human is 96\% accuracy 87\% exact match
+    \item Does fine-tuning pretrained models improve accuracy of reference resolver?
+    \item How can we close the gap?
+    \end{itemize}
+\item Would a better reference resolver result in a better selection model?
+    \begin{itemize}
+    \item Yes, training on true refs gives 99\% accuracy selection model
+    \item Best model currently at 83\%, humans at 91\%
+    \end{itemize}
+\item Does fine-tuning pretrained models improve round-trip of reference generator?
+    \begin{itemize}
+    \item Generation second priority
+    \item Likely over-fitting
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Improving Reference Resolution}
+\begin{itemize}
+    \item Resolving multiple dots
+        \begin{itemize}
+        \item Likely not enough data
+        \item Gather more data with more ambiguity, i.e. dots
+            all have the same size and color? Would this transfer?
+        \end{itemize}
+    \item Architectures that are more biased towards composition
+        \begin{itemize}
+        \item DIORA
+        \item Transformers? (possibly with attention constraints)
+        \end{itemize}
+    \item Reasoning explicitly about past references
+        \begin{itemize}
+        \item Belief state / checklist
+        \item Pragmatic inference via mutual exclusivity
+            (check if anything is referenced multiple times)
+        \end{itemize}
+    \item Coreference
+        \begin{itemize}
+        \item Unfamiliar, need further research
+        \item How often does this happen?
+        \end{itemize}
+   \item Dialogue acts
+        \begin{itemize}
+        \item Pragmatics of resolution vary based on dialogue act
+        \item Confirmation repeats vs new references
+        \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
 \frametitle{3 Challenges}
 \begin{itemize}
 \item Modular models
@@ -94,6 +161,12 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
     \item Partner model allows forward modeling, learned over
         a multiple round game or repeated games
     \item Adapt opaque neural model or hierarchical bayesian model?
+    \end{itemize}
+\item Better reference resolution / referring expression models?
+    \begin{itemize}
+    \item Dialogue games are often data scarce and out of domain
+    \item Can we use models that are more sensitive / with stronger
+        biases?
     \end{itemize}
 \end{itemize}
 \end{frame}
