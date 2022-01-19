@@ -199,13 +199,13 @@ given different but overlapping views
 \frametitle{Current Status}
 \begin{itemize}
 \item POMDP formulation as best-arm identification (Simplification, ignores dec)
-\item Symmetric actions and observations for both partners (Good!)
     \begin{itemize}
+    \item Symmetric actions and observations for both partners (Good!)
+    \item Actions and observations are structured
     \item Include extra information as a `free turn' in POMDP
+    \item Ignores partner belief
     \end{itemize}
-\item Actions and observations are structured
-\item Ignore partner belief
-\item Planning ignores structure (inefficient)
+\item Planning ignores structure (inefficient, but ok for now)
 \item Solves small state space (each can see 3 dots with 1 shared) and
     all dots unique / easily identified
 \item Next step: See if partner belief modeling is necessary
