@@ -69,6 +69,227 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{frame}
 
 \begin{frame}
+\frametitle{Motivation: Collaboration through dialogue}
+\begin{itemize}
+\item Dialogue enables accessibility
+    \begin{itemize}
+    \item More constrained interfaces require expertise
+    \end{itemize}
+\item Many open problems
+    \begin{itemize}
+    \item Large, noisy action spaces
+    \item Noisy observations inherent to language
+    \item Multiple agents
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Coordination and Joint Attention}
+\begin{itemize}
+\item Joint attention: aligning the attention of all participants
+\item A necessary first step in coordination
+\item Example task: Naming constellations
+    \begin{itemize}
+    \item Must first collectively find a starting star
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Reference Dialogue Games}
+\begin{itemize}
+\item Simplest form of collaborative task-oriented dialogue
+\item Convey a referrent to your dialogue partner
+    \begin{itemize}
+    \item Ex: Jointly selecting a star
+    \end{itemize}
+\item Successful joint attention = task success
+
+\item Simplest form: Information gathering via discriminative questions
+    \begin{itemize}
+    \item Can also include coordination (OC, MutualFriends) focus on this
+    \item Or even navigation (Cards)
+    \end{itemize}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Solving Reference Games}
+\begin{itemize}
+\item Multiple agents with equal capabilities
+    \begin{itemize}
+    \item Pro: More efficient task completion
+    \item Con: May be more difficult to reason about other agents' belief states
+        (`agent uncertainty')
+    \end{itemize}
+\item Natural language dialogue
+    \begin{itemize}
+    \item Pro: Great for interfacing with non-experts
+    \item Con: Extremely large search space when planning
+    \end{itemize}
+\item Planning in a structured action / observation space
+    \begin{itemize}
+    \item Pro: Computationally efficient planning
+    \item Con: Must convert to and from language, leading to `sensor uncertainty'
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Research question}
+\begin{itemize}
+\item How can we achieve joint attention, a necessary first step towards collaboration?
+\item Hypothesis: We can solve joint attention with efficient and accurate planning
+    \begin{itemize}
+    \item Past work planning directly in language is inefficient and inaccurate
+    \item Reference games admit a natural structured action / observation space
+    \end{itemize}
+\item Challenge: Planning is computationally difficult in multi-agent systems
+    \begin{itemize}
+    \item Large number of belief states
+    \item Difficult to calibrate sensor uncertainty with language
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{OneCommon}
+Collaborative reference game where the goal is to find one dot
+both players have in common,
+given different but overlapping views
+\begin{center}
+\includegraphics[width=2in]{img/oc.png}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{Method}
+\begin{itemize}
+\item Separate language (sensors) from planning
+\item Formalize problem as a decentralized POMDP
+    \begin{itemize}
+    \item Players are performing hypothesis testing together
+    \end{itemize}
+\item Sources of uncertainty
+    \begin{itemize}
+    \item Language input (sensors)
+    \item Language output (generation errors)
+    \item Other agents
+    \end{itemize}
+\item Focus on uncertainty induced by other agents
+    \begin{itemize}
+    \item Is modeling other agents' beliefs necessary?
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Research Questions Summary}
+\begin{itemize}
+\item Goal: Solve joint attention
+\item Question: Can we solve joint attention by utilizing structure to improve the
+    efficiency and accuracy of planning?
+\item Additionally: When is modeling other agents' beliefs necessary?
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Current Status}
+\begin{itemize}
+\item POMDP formulation as best-arm identification (Simplification, ignores dec)
+\item Symmetric actions and observations for both partners (Good!)
+    \begin{itemize}
+    \item Include extra information as a `free turn' in POMDP
+    \end{itemize}
+\item Actions and observations are structured
+\item Ignore partner belief
+\item Planning ignores structure (inefficient)
+\item Solves small state space (each can see 3 dots with 1 shared) and
+    all dots unique / easily identified
+\item Next step: See if partner belief modeling is necessary
+    when dots are not as easily identified
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Deprecated below}
+See belief writeup for more up to date stuff
+\end{frame}
+
+\begin{frame}
+\frametitle{Related Work}
+\begin{itemize}
+\item Lots of work decoupling actions from language (to avoid catastrophic forgetting)
+\item Aligning text to (continuous) actions \citep{latentactions}
+\item Modern implementation of Cards \citep{cards}?
+    \begin{itemize}
+    \item Is the Dec necessary? (How different is I'm sure from they're sure) 
+    \item Is the PO part important, i.e. can we use certainty equivalence?
+        (low risk, how often do edge cases occur?)
+    \item Amortized inference, better approximation algorithms / search?
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{OneCommon: Properties}
+\begin{itemize}
+\item Action space: Can be reduced to predicates over dots and boolean response
+    to partner predicates
+\item Observations: Observations are symmetric with action space
+\item Agents: Only one other agent, which we can assume is similar
+\item Strategy: Mostly common to other reference games
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Simplified OneCommon}
+We can solve the following POMDP almost exactly with value iteration
+\begin{itemize}
+\item Small horizon $T=5$
+\item State: Beta distribution for each dot.
+    Gives prior over our partner having a dot.
+    Combine independent Beta parameters into Dirichlet for selection.
+\item Actions: We communicate directly in a single predicate over our dots
+    ($2^{D}$ different predicates)
+\item Observations: Partner can only respond to predicate noiselessly
+\end{itemize}
+We can almost solve the Bellman equation
+\begin{itemize}
+\item Convert to and MDP over belief state
+\item Reduce belief state to sufficient statistics of positive response counts for each dot
+    (of size $T^D$)
+\item Transitions limited because we can only add 1 or 0 to counts
+\item Major issue is max over actions
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Next Steps}
+Shorter term
+\begin{itemize}
+\item Align language to actions (predicates over our dots)
+\item Add noise to feedback (did they understand our action/predicate?)
+\end{itemize}
+Longer term
+\begin{itemize}
+\item Extend response from boolean (they can offer more information, ask questions)
+\item Approximate methods for larger state space (MCTS used in prior work with actions = language),
+    i.e. MutualFriends
+\end{itemize}
+Longerer term
+\begin{itemize}
+\item Dec-POMDP
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{VERY OLD SLIDES. DO NOT CONTINUE}
+\end{frame}
+
+\begin{frame}
 \frametitle{Motivation: Why OneCommon}
 \begin{itemize}
 \item OneCommon is all about referring expressions (resolving / generating)
@@ -103,20 +324,36 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{frame}
 
 \begin{frame}
-\frametitle{Improving Reference Resolution}
+\frametitle{Current Models for RE}
 \begin{itemize}
-    \item Resolving multiple dots
+\item Fried 2021
+    \begin{itemize}
+    \item Conditions on utterances and marginal dot features
+    \item Neural referent memory (updates dots on reference)
+    \end{itemize}
+\item Udagawa 2021
+    \begin{itemize}
+    \item Conditions on utterances and marginal dot features (input structure via
+        relational networks)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Improving RE}
+\begin{itemize}
+    \item Resolve multiple dots
         \begin{itemize}
-        \item Likely not enough data
-        \item Gather more data with more ambiguity, i.e. dots
-            all have the same size and color? Would this transfer?
+        \item Use number prediction to select explicit arity potentials
+        \item Not enough data? Gather more data with more ambiguity, i.e. dots
+            all have the same size and color? Would this transfer (motivation)?
         \end{itemize}
     \item Architectures that are more biased towards composition
         \begin{itemize}
         \item DIORA
         \item Transformers? (possibly with attention constraints)
         \end{itemize}
-    \item Reasoning explicitly about past references
+    \item Reason explicitly about past references
         \begin{itemize}
         \item Belief state / checklist
         \item Pragmatic inference via mutual exclusivity
@@ -131,7 +368,20 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
         \begin{itemize}
         \item Pragmatics of resolution vary based on dialogue act
         \item Confirmation repeats vs new references
+        \item How to collect data for this?
         \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Generalization / Transfer to Other Tasks}
+\begin{itemize}
+\item Low-resource datasets that need more structure / bias
+\item Context is useful for understanding
+    \begin{itemize}
+    \item 
+    \end{itemize}
+\item Understanding is useful for generation
 \end{itemize}
 \end{frame}
 
@@ -376,7 +626,7 @@ What are the latent variables in each type?
 \begin{frame}[allowframebreaks]
 \frametitle{Citations}
 %\printbibliography
-\bibliography{anthology.bib}
+\bibliography{anthology.bib,emnlp2020.bib}
 \end{frame}
 
 \end{document}
