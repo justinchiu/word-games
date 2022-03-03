@@ -69,30 +69,102 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{frame}
 
 \begin{frame}
-\frametitle{Motivation: Collaboration through dialogue}
+\frametitle{Coordination and dialogue}
+\begin{columns}
+\begin{column}{0.5\textwidth}
 \begin{itemize}
-\item Dialogue enables accessibility
+\item Coordination
     \begin{itemize}
-    \item More constrained interfaces require expertise
+    \item I
     \end{itemize}
-\item Many open problems
+\item Interactive reference games
     \begin{itemize}
-    \item Large, noisy action spaces
-    \item Noisy observations inherent to language
-    \item Multiple agents
+    \item Isolates ambiguity resolution
+    \end{itemize}
+\end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}
+    \centering
+\includegraphics[width=2in]{img/oc.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Games}
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[width=2in]{img/mf.png}
+\end{column}
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[width=2in]{img/oc.png}
+\end{column}
+\end{columns}
+
+\vspace{2em}
+\centering
+Mutual Friends and OneCommon
+\end{frame}
+
+\begin{frame}
+\frametitle{Current Approaches}
+\begin{itemize}
+\item Neural encoder-decoder
+    \begin{itemize}
+    \item Encode past interactions with a neural net
+    \item Generate what to say with a neural net
+    \item Less brittle for language, brittle strategy
+    \end{itemize}
+\item Rule-based
+    \begin{itemize}
+    \item Encode past interactions in a table
+    \item Use rules for what to say next
+    \item Nonparametric lookup of utterances
+    \item Less brittle strategy, brittle language
+    \end{itemize}
+\item Let's see some examples of brittleness
+    from these two domains
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue 1: Poor strategies}
+\begin{itemize}
+\item 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue 2: }
+\begin{itemize}
+\item Asdf
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{A dialogue turn}
+\begin{itemize}
+\item Engaging in dialogue requires
+    \begin{itemize}
+    \item Inference: What information do I currently have?
+    \item Planning: What should I say (and how)?
+    \end{itemize}
+\item Formulate as model-based optimization
+    \begin{itemize}
+    \item Plan what to say through a simple model of our partner
+    \item Model of partner conditions on past information
     \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Coordination and Joint Attention}
+\frametitle{Problem setup}
 \begin{itemize}
-\item Joint attention: aligning the attention of all participants
-\item A necessary first step in coordination
-\item Example task: Naming constellations
-    \begin{itemize}
-    \item Must first collectively find a starting star
-    \end{itemize}
+\item Sequential decision process
+\item 
 \end{itemize}
 \end{frame}
 
