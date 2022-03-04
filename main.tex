@@ -182,6 +182,7 @@ From Mutual Friends: Neural + Human
 \item Given history representation $h$,
 we need to chose an action $a$
 that maximizes the expected future reward
+\item Receive observation $o$ after taking an action
 \item Must solve
 \begin{equation*}
 V(h) = \max_a \underbrace{\Es{p(s \mid h)}{R(s, a)}}_{\text{immediate reward}}
@@ -277,6 +278,37 @@ V(h) = \max_a \underbrace{\Es{p(s \mid h)}{R(s, a)}}_{\text{immediate reward}}
 
 \begin{frame}
 \frametitle{Proposal}
+\begin{equation*}
+V(h) = \max_a \underbrace{\Es{p(s \mid h)}{R(s, a)}}_{\text{immediate reward}}
++ \underbrace{\Es{p(o\mid h, a)}{\tilde{V}(hao)}}_{\text{future reward}}
+\end{equation*}
+    \begin{itemize}
+    \item History encoding $h$: Binary vector of all attributes
+    \item Action $a = (d, u)$: Tuple of attributes and utterance
+    \item Reward $R$: Specificity $p(d \mid u)$
+    \item Observation $o$: Yes/no or categorical response (but parsed from language)
+    \item Future reward $\tilde{V}$: Information gain for $p(i \mid hao)$
+    \end{itemize}
+
+What is $p(i\mid hao)$?
+\end{frame}
+
+\begin{frame}
+\frametitle{State and belief}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item State: $h \in \set{0,1}^N$
+\item Items: $i \in [M], N >> M$
+\item $p(i \mid h) = \frac{\sum_n \psi(h_n, i)}{\sum_{i',n} \psi(h_n, i')}$
+\item $\psi(h_n, i) = 1(h_n(i))$ 
+\end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[height=2in]{img/rbm.png}
+\end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}
