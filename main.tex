@@ -296,19 +296,31 @@ What is $p(i\mid hao)$?
 \begin{frame}
 \frametitle{State and belief}
 \begin{columns}
-\begin{column}{0.5\textwidth}
+\begin{column}{0.55\textwidth}
 \begin{itemize}
 \item State: $h \in \set{0,1}^N$
 \item Items: $i \in [M], N >> M$
 \item $p(i \mid h) = \frac{\sum_n \psi(h_n, i)}{\sum_{i',n} \psi(h_n, i')}$
+\item  $p(i \mid h)\propto 1 + \log 1 + \sum_n \psi(h_n, i)$
 \item $\psi(h_n, i) = 1(h_n(i))$ 
 \end{itemize}
 \end{column}
-\begin{column}{0.5\textwidth}
+\begin{column}{0.45\textwidth}
 \centering
 \includegraphics[height=2in]{img/rbm.png}
 \end{column}
 \end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Concerns}
+\begin{itemize}
+\item Would a large LM solve all of this?
+    \begin{itemize}
+    \item Fine tune on small onecommon dataset, are there still repeats?
+    \item Unlikely to solve strategy / over optimistism
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}
