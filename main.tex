@@ -263,6 +263,18 @@ V(h) = \max_a \underbrace{\Es{p(s \mid h)}{R(s, a)}}_{\text{immediate reward}}
 \end{frame}
 
 \begin{frame}
+\frametitle{Expected Information Gain}
+\begin{itemize}
+\item Belief distribution $p(i\mid h)$
+\item Observation distribution $p(o \mid h, a, i)$
+\item New belief $p(i \mid hao)$
+\item Information gain
+$$\Es{p(i \mid h)}{\log p(i \mid h) - \Es{p(o \mid h,a,i)}{\log p(i\mid h,a,o)}}$$
+\item Since maximizing over actions $a$, can ignore first term
+\end{itemize}
+\end{frame}
+
+\begin{frame}
 \frametitle{Belief representation}
 \begin{itemize}
 \item Just considering target items is not enough
