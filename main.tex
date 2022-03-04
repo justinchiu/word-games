@@ -69,25 +69,19 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{frame}
 
 \begin{frame}
-\frametitle{Coordination and dialogue}
-\begin{columns}
-\begin{column}{0.5\textwidth}
+\frametitle{Dialogue}
 \begin{itemize}
-\item Coordination
+\item Communication is rarely unambiguous
     \begin{itemize}
-    \item I
+    \item Ambiguity resolution through dialogue
+    \item Clarification questions
     \end{itemize}
-\item Interactive reference games
+\item Interactive, symmetric reference games
     \begin{itemize}
     \item Isolates ambiguity resolution
+    \item Both give and request information
     \end{itemize}
 \end{itemize}
-\end{column}
-\begin{column}{0.5\textwidth}
-    \centering
-\includegraphics[width=2in]{img/oc.png}
-\end{column}
-\end{columns}
 \end{frame}
 
 \begin{frame}
@@ -110,47 +104,69 @@ Mutual Friends and OneCommon
 \end{frame}
 
 \begin{frame}
-\frametitle{Current Approaches}
+\frametitle{Issue: Poor neural reasoning}
+From Mutual Friends: Neural + Human
+\begin{itemize}
+\item A: Know anyone who likes chess?
+\item B: None of my friends like chess.
+\item (conversation continues)
+\item A: Crocheting?
+\item B: None like crocheting.
+\item A: Chess?
+\item B: None like chess either, haha.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue: Poor neural reasoning}
+\centering
+\includegraphics[height=3in]{img/oc-success.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue: Poor neural reasoning}
+\centering
+\includegraphics[height=3in]{img/oc-failure.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue: Scaling rule-based}
+\centering
+\includegraphics[height=1in]{img/mf-res.png}
+\begin{itemize}
+\item Rule-based text generation and understanding is viable for Mutual Friends
+\item Continuous and spatial nature of OneCommon makes writing rules difficult
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Current approaches: Two extremes}
 \begin{itemize}
 \item Neural encoder-decoder
     \begin{itemize}
     \item Encode past interactions with a neural net
     \item Generate what to say with a neural net
-    \item Less brittle for language, brittle strategy
+    \item Brittle strategy, less brittle language
     \end{itemize}
 \item Rule-based
     \begin{itemize}
     \item Encode past interactions in a table
     \item Use rules for what to say next
     \item Nonparametric lookup of utterances
-    \item Less brittle strategy, brittle language
+    \item Brittle language, less brittle strategy
     \end{itemize}
-\item Let's see some examples of brittleness
-    from these two domains
+\item Meet in middle with belief state and planning
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Issue 1: Poor strategies}
-\begin{itemize}
-\item 
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Issue 2: }
-\begin{itemize}
-\item Asdf
-\end{itemize}
-\end{frame}
 
 \begin{frame}
 \frametitle{A dialogue turn}
 \begin{itemize}
 \item Engaging in dialogue requires
     \begin{itemize}
-    \item Inference: What information do I currently have?
-    \item Planning: What should I say (and how)?
+    \item Inference: What do I know?
+    \item Planning: What should I do?
     \end{itemize}
 \item Formulate as model-based optimization
     \begin{itemize}
@@ -163,9 +179,108 @@ Mutual Friends and OneCommon
 \begin{frame}
 \frametitle{Problem setup}
 \begin{itemize}
-\item Sequential decision process
-\item 
+\item Given history representation $h$,
+we need to chose an action $a$
+that maximizes the expected future reward
+\item Must solve
+\begin{equation*}
+V(h) = \max_a \underbrace{\Es{p(s \mid h)}{R(s, a)}}_{\text{immediate reward}}
++ \underbrace{\Es{p(o\mid h, a)}{\tilde{V}(hao)}}_{\text{future reward}}
+\end{equation*}
+\item Two questions we will answer
+    \begin{itemize}
+    \item How do we represent $h,a,o$?
+    \item How do we compute future reward $\tilde{V}$?
+    \end{itemize}
+\item But first look at past work under this lens
 \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Past approaches: Rule-based}
+\begin{equation*}
+V(h) = \max_a \underbrace{\Es{p(s \mid h)}{R(s, a)}}_{\text{immediate reward}}
++ \underbrace{\Es{p(o\mid h, a)}{\tilde{V}(hao)}}_{\text{future reward}}
+\end{equation*}
+
+\begin{itemize}
+\item History encoding $h$: Table with mention counts of attributes
+\item Action $a$: Attribute, utterance
+    from a template
+\item Reward $R$: Defined by rule
+\item Observation $o$: Not used
+\item Future reward $\tilde{V}$: Not used
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Past approaches: Neural}
+\begin{equation*}
+V(h) = \max_a \underbrace{\Es{p(s \mid h)}{R(s, a)}}_{\text{immediate reward}}
++ \underbrace{\Es{p(o\mid h, a)}{\tilde{V}(hao)}}_{\text{future reward}}
+\end{equation*}
+    \begin{itemize}
+    \item History encoding $h$: Neural representation (hierarchical RNN, graph NN)
+    \item Action $a = (i, u)$: First pick an item $i$ to ask about, then produce an utterance
+        $u \mid i$ from NN (or directly produce $u$ from NN)
+    \item Reward $R$: Specificity of utterance ($p(i \mid u)$) or just probability
+        of utterance
+    \item Observation $o$: Language (but not used)
+    \item Future reward $\tilde{V}$: Not used
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Segway: Prior work in 20 questions and belief-states}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item Target items $i$
+\item Belief distribution $p(i)$
+\end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[height=3in]{img/birds.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Past approaches: Belief-state (20 questions)}
+\begin{equation*}
+V(h) = \max_a \underbrace{\Es{p(s \mid h)}{R(s, a)}}_{\text{immediate reward}}
++ \underbrace{\Es{p(o\mid h, a)}{\tilde{V}(hao)}}_{\text{future reward}}
+\end{equation*}
+    \begin{itemize}
+    \item History encoding $h$: Categorical over target items $p(i \mid h)$
+    \item Action $a$: Finite set of questions
+    \item Reward $R$: None
+    \item Observation $o$: Yes/no or categorical response
+    \item Future reward $\tilde{V}$: Information gain for $p(i \mid hao)$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Belief representation}
+\begin{itemize}
+\item Just considering target items is not enough
+\item If ask about the same item, should ask in a way that improves information
+    \begin{itemize}
+    \item Pushes all work onto observation model $p(o \mid h, a) = \sum_ip(o \mid i, a)p(i \mid h)$
+    \item Additionally, representation of $hao$ may not be adequate
+    \end{itemize}
+\item There should be no information gain from taking the same action multiple times
+\item Need a belief state based on attributes to prevent repeats
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Proposal}
+\end{frame}
+
+\begin{frame}
+\frametitle{End}
 \end{frame}
 
 \begin{frame}
