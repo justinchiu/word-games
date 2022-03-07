@@ -133,11 +133,16 @@ From Mutual Friends: Neural + Human
 
 \begin{frame}
 \frametitle{Issue: Scaling rule-based}
-\centering
-\includegraphics[height=1in]{img/mf-res.png}
 \begin{itemize}
-\item Rule-based text generation and understanding is viable for Mutual Friends
+\item Rule-based text generation and understanding is somewhat viable for Mutual Friends
+    \begin{itemize}
+    \item Very optimistic selection, but can be tuned
+    \end{itemize}
 \item Continuous and spatial nature of OneCommon makes writing rules difficult
+    \begin{itemize}
+    \item Size, color, and positions all continuous
+    \item Descriptions are relative
+    \end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -193,7 +198,7 @@ we need to chose an action $a$ by optimizing value
 \end{equation*}
 \item Value $V$ = information gain
     \begin{itemize}
-    \item Gain in item selection probability
+    \item Entropy reduction of item selection probability
     \end{itemize}
 \item Represent $h,a$ using attributes
     \begin{itemize}
@@ -318,7 +323,7 @@ we need to chose an action $a$ by optimizing value
     \item Which dots are mentioned
     \item Need to learn lower-level attributes
     \end{itemize}
-\item Numerical reasoning
+\item Numerical reasoning?
 \end{itemize}
 \end{frame}
 
@@ -379,28 +384,6 @@ IG(h, a) &= H(i \mid h) - \Es{p(o\mid h,a)}{H(i \mid h, a, o)}\\
 \item Cite Yu et al, White et al
 \end{itemize}
 \end{frame}
-
-\begin{frame}
-\frametitle{Issues with information gain}
-\begin{itemize}
-\item Too much burden on the obs model $p(o \mid h,a,i)$
-    \begin{itemize}
-    \item When $o$ is natural language, conditioning on $h$ is important
-    \item If we had a great obs model, would we have really have issues
-        with solving these simple dialogue games?
-    \end{itemize}
-\item Proposal: Set up models for success by separating language from strategy
-    \begin{itemize}
-    \item Rule-based representations good for strategy
-    \item Neural models good for language
-    \end{itemize}
-\item Set up so that $o \bigCI h \mid a,i$ is a reasonable assum
-\item Reframe dialogue as `asking about features' for item selection
-\item Convert language to and from item features
-\end{itemize}
-\end{frame}
-
-
 
 \begin{frame}[allowframebreaks]
 \frametitle{Citations}
