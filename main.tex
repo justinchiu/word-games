@@ -191,8 +191,14 @@ we need to chose an action $a$ by optimizing value
 \begin{equation*}
 \max_a V(h, a)
 \end{equation*}
-\item How should we define value $V$?
-\item How do we represent $h,a$?
+\item Value $V$ = information gain
+    \begin{itemize}
+    \item Gain in item selection probability
+    \end{itemize}
+\item Represent $h,a$ using attributes
+    \begin{itemize}
+    \item Columns of knowledge base, spatial configuration of dots
+    \end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -221,46 +227,44 @@ we need to chose an action $a$ by optimizing value
 \edge {a} {o};
 \end{tikzpicture}
 \end{center}
-
+\item Language and planning coupled
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Value: Information Gain}
+\frametitle{Decoupling language and planning}
 \begin{itemize}
-\item Picture would be much better here...
-\item Value = expected information gain
-\begin{align*}
-IG(h, a) &= H(i \mid h) - \Es{p(o\mid h,a)}{H(i \mid h, a, o)}\\
-\Es{p(o\mid h,a)}{H(i \mid h, a)} &= \sum_o\sum_{i'}p(o\mid h,a,i)p(i\mid h)H(i \mid h,a,o)
-\end{align*}
-\item Equivalent to minimizing expected uncertainty after receiving a response
-\item Cite Yu et al, White et al
+\item Decompose actions $a$ and observations $o$ into language and abstract representations
+    $\tilde{a}, \tilde{o}$
+    \begin{itemize}
+    \item Language is very high dimensional, redundant, and
+        inefficient for planning
+    \end{itemize}
+\item Represent a turn as
+\begin{center}
+\begin{tikzpicture}
+\node[obs] (h) {$h$};
+\node[latent, right=of h] (i) {$i$};
+\node[latent, above=of i] (to) {$\tilde{o}$};
+\node[latent, above=of h] (ta) {$\tilde{a}$};
+\node[latent, above=of to] (o) {$o$};
+\node[latent, above=of ta] (a) {$a$};
+\edge {h} {i};
+\edge {h} {o};
+\edge {i} {to};
+\edge {ta} {a};
+\edge {ta} {to};
+\edge {to} {o};
+\edge {a} {o};
+\end{tikzpicture}
+\end{center}
+\item Abstract observation $\tilde{o} \bigCI h \mid \tilde{a}, i$
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Issues with information gain}
-\begin{itemize}
-\item Too much burden on the obs model $p(o \mid h,a,i)$
-    \begin{itemize}
-    \item When $o$ is natural language, conditioning on $h$ is important
-    \item If we had a great obs model, would we have really have issues
-        with solving these simple dialogue games?
-    \end{itemize}
-\item Proposal: Set up models for success by separating language from strategy
-    \begin{itemize}
-    \item Rule-based representations good for strategy
-    \item Neural models good for language
-    \end{itemize}
-\item Set up so that $o \bigCI h \mid a,i$ is a reasonable assum
-\item Reframe dialogue as `asking about features' for item selection
-\item Convert language to and from item features
-\end{itemize}
-\end{frame}
 
 \begin{frame}
-\frametitle{State and belief: Logistic regression}
+\frametitle{State and belief: Representation and logistic regression}
 \begin{columns}
 \begin{column}{0.55\textwidth}
 \begin{itemize}
@@ -299,6 +303,10 @@ IG(h, a) &= H(i \mid h) - \Es{p(o\mid h,a)}{H(i \mid h, a, o)}\\
 \end{frame}
 
 \begin{frame}
+\frametitle{Experiments}
+\end{frame}
+
+\begin{frame}
 \frametitle{End}
 \end{frame}
 
@@ -316,6 +324,42 @@ IG(h, a) &= H(i \mid h) - \Es{p(o\mid h,a)}{H(i \mid h, a, o)}\\
 
 \begin{frame}
 \frametitle{End}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Value: Information Gain}
+\begin{itemize}
+\item drop slide
+\item Picture would be much better here...
+\item Value = expected information gain
+\begin{align*}
+IG(h, a) &= H(i \mid h) - \Es{p(o\mid h,a)}{H(i \mid h, a, o)}\\
+\Es{p(o\mid h,a)}{H(i \mid h, a)} &= \sum_o\sum_{i'}p(o\mid h,a,i)p(i\mid h)H(i \mid h,a,o)
+\end{align*}
+\item Equivalent to minimizing expected uncertainty after receiving a response
+\item Cite Yu et al, White et al
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Issues with information gain}
+\begin{itemize}
+\item Too much burden on the obs model $p(o \mid h,a,i)$
+    \begin{itemize}
+    \item When $o$ is natural language, conditioning on $h$ is important
+    \item If we had a great obs model, would we have really have issues
+        with solving these simple dialogue games?
+    \end{itemize}
+\item Proposal: Set up models for success by separating language from strategy
+    \begin{itemize}
+    \item Rule-based representations good for strategy
+    \item Neural models good for language
+    \end{itemize}
+\item Set up so that $o \bigCI h \mid a,i$ is a reasonable assum
+\item Reframe dialogue as `asking about features' for item selection
+\item Convert language to and from item features
+\end{itemize}
 \end{frame}
 
 
