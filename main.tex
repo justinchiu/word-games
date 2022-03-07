@@ -234,11 +234,10 @@ we need to chose an action $a$ by optimizing value
 \begin{frame}
 \frametitle{Decoupling language and planning}
 \begin{itemize}
-\item Decompose actions $a$ and observations $o$ into language and abstract representations
+\item Compress actions $a$ and observations $o$ into language and abstract representations
     $\tilde{a}, \tilde{o}$
     \begin{itemize}
-    \item Language is very high dimensional, redundant, and
-        inefficient for planning
+    \item Language is high dimensional, redundant, and inefficient for planning
     \end{itemize}
 \item Represent a turn as
 \begin{center}
@@ -264,17 +263,21 @@ we need to chose an action $a$ by optimizing value
 
 
 \begin{frame}
-\frametitle{State and belief: Representation and logistic regression}
+\frametitle{State and belief: Representation}
 \begin{columns}
-\begin{column}{0.55\textwidth}
+\begin{column}{0.70\textwidth}
 \begin{itemize}
-\item History: whether features have been confirmed $h \in \set{0,1}^N$
+\item History: whether attributes have been confirmed $h \in \set{0,1}^N$
 \item Items: $i \in [M], N >> M$
 \item $p(i \mid h) = \frac{\exp(\sum_n \psi(h_n, i))}{\sum_{i'} \exp(\sum_n\psi(h_n, i'))}$
-\item $\psi(h_n, i) = w_n 1(h_n(i))$ 
+\item $\psi(h_n, i) = w_n 1(h_n(i))$
+\item Logistic regression with attributes as features
+    \begin{itemize}
+    \item Attribute-based LR + Info gain = rules
+    \end{itemize}
 \end{itemize}
 \end{column}
-\begin{column}{0.45\textwidth}
+\begin{column}{0.30\textwidth}
 \centering
 \begin{tikzpicture}
 \node[latent] (h1) {$h_1$};
@@ -303,7 +306,42 @@ we need to chose an action $a$ by optimizing value
 \end{frame}
 
 \begin{frame}
+\frametitle{Attributes}
+\begin{itemize}
+\item Mutual Friends
+    \begin{itemize}
+    \item Combinations of columns of knowledge base
+    \item Name, major, company
+    \end{itemize}
+\item OneCommon
+    \begin{itemize}
+    \item Which dots are mentioned
+    \item Need to learn lower-level attributes
+    \end{itemize}
+\item Numerical reasoning
+\end{itemize}
+\end{frame}
+
+\begin{frame}
 \frametitle{Experiments}
+\begin{itemize}
+\item Mutual Friends
+    \begin{itemize}
+    \item Augment rule-based (prior work) to optimize info gain
+    \item After OneCommon: Add neural on top
+    \end{itemize}
+\item OneCommon
+    \begin{itemize}
+    \item Use attributes = raw mention configurations
+        \begin{itemize}
+        \item Everything already in system, except for belief / info gain
+        \end{itemize}
+    \item Learn latent refinement on top of mention configurations
+        \begin{itemize}
+        \item How to deal with redundancy? (i.e. correlation between features)
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}
