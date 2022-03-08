@@ -346,14 +346,24 @@ p(i \mid h) &= \frac{\exp(\sum_n \psi(h_n, i))}{\sum_{i'} \exp(\sum_n\psi(h_n, i
     \begin{itemize}
     \item Use attributes = raw mention configurations
         \begin{itemize}
-        \item Everything already in system, except for belief / info gain
-        \end{itemize}
-    \item Learn latent refinement on top of mention configurations
-        \begin{itemize}
+        \item Need belief / info gain / LR weights
         \item How to deal with redundancy? (i.e. correlation between features)
         \end{itemize}
+    \item Learn latent refinement on top of mention configurations
     \end{itemize}
 \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Information gain issues}
+\begin{itemize}
+\item Best info gain could be to ask the same question twice
+\item Usual fix: Limit to asking once only
+\item Would be nice to have a principled way to deal with correlated
+    features though
+\end{itemize}
+\centering
+\includegraphics[height=2in]{src/entropy.png}
 \end{frame}
 
 \begin{frame}

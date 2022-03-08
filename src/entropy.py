@@ -58,5 +58,7 @@ df = pd.DataFrame({
 }, index = np.arange(len(all_3)))
 
 df.plot(kind="bar", stacked=False, color=["blue", "green"])
-plt.show()
+plt.xlabel("Action")
+plt.ylabel("Entropy")
+plt.savefig("entropy.png")
 
