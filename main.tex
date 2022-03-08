@@ -275,7 +275,7 @@ we need to chose an action $a$ by optimizing utility
 \begin{column}{0.70\textwidth}
 \begin{itemize}
 \item History: whether attributes have been confirmed $h \in \set{0,1}^N$
-\item Items: $i \in [M], N >> M$
+\item Items: $i \in [M], M << N$
 \item Logistic regression with attributes as features
 \begin{align*}
 p(i \mid h) &= \frac{\exp(\sum_n \psi(h_n, i))}{\sum_{i'} \exp(\sum_n\psi(h_n, i'))}\\
