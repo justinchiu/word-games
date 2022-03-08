@@ -186,7 +186,7 @@ From Mutual Friends: Neural + Human
 \begin{frame}
 \frametitle{Problem setup}
 \begin{itemize}
-\item Goal: Mutually select the same item as partner
+\item Goal: Mutually select the same item $i$ as partner
     \begin{itemize}
     \item Row in knowledge base, dot
     \item Coordinate through dialogue
@@ -213,8 +213,7 @@ we need to chose an action $a$ by optimizing utility
 \begin{frame}
 \frametitle{Information Gain}
 \begin{itemize}
-\item A good action should move us closer to game success
-\item Game success depends on our knowledge of our partner's context
+\item A good action should decrease uncertainty
 \item Requires
     \begin{itemize}
     \item Belief distribution over selection item given history $p(i \mid h)$
