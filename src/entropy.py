@@ -16,9 +16,9 @@ seed = 1111
 key = random.PRNGKey(seed)
 
 # number of dots
-N = 4
+N = 3
 # number of features
-K = 8
+K = 5
 
 key, W_key = random.split(key)
 W = random.poisson(W_key, 1, shape=(K, N))

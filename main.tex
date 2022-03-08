@@ -194,9 +194,9 @@ From Mutual Friends: Neural + Human
 \item Given history $h$,
 we need to chose an action $a$ by optimizing value
 \begin{equation*}
-\max_a V(h, a)
+\max_a U(h, a)
 \end{equation*}
-\item Value $V$ = information gain + utterance + pragmatic cost
+\item Utility $U$ = information gain + utterance + pragmatic cost
     \begin{itemize}
     \item IG: Entropy reduction of item selection probability
     \item Utterance cost: Can't send a full paragraph
@@ -367,6 +367,26 @@ p(i \mid h) &= \frac{\exp(\sum_n \psi(h_n, i))}{\sum_{i'} \exp(\sum_n\psi(h_n, i
 \end{frame}
 
 \begin{frame}
+\frametitle{Related work: 20 questions}
+\begin{itemize}
+\item \citet{padmakumar}
+    \begin{itemize}
+    \item Attribute-based classification (string heuristic to map to description)
+        + activate learning about attributes
+    \item Info gain (on top of binary unweighted logistic regression) as feature for
+        RL policy
+    \end{itemize}
+\item \citet{yu}
+    \begin{itemize}
+    \item Question-based classification (attributes)
+    \item Learn weights of features
+    \item Do not consider feature correlations
+    \end{itemize}
+\item Less interesting language in both
+\end{itemize}
+\end{frame}
+
+\begin{frame}
 \frametitle{End}
 \end{frame}
 
@@ -405,7 +425,7 @@ IG(h, a) &= H(i \mid h) - \Es{p(o\mid h,a)}{H(i \mid h, a, o)}\\
 \begin{frame}[allowframebreaks]
 \frametitle{Citations}
 %\printbibliography
-\bibliography{anthology.bib,emnlp2020.bib}
+\bibliography{bib.bib}
 \end{frame}
 
 \end{document}
