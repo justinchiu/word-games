@@ -209,7 +209,7 @@ we need to chose an action $a$ by optimizing value
 
 
 \begin{frame}
-\frametitle{Value: Information Gain}
+\frametitle{Information Gain}
 \begin{itemize}
 \item A good action should move us closer to game success
 \item Game success depends on our knowledge of our partner's context
@@ -274,12 +274,17 @@ we need to chose an action $a$ by optimizing value
 \begin{itemize}
 \item History: whether attributes have been confirmed $h \in \set{0,1}^N$
 \item Items: $i \in [M], N >> M$
-\item $p(i \mid h) = \frac{\exp(\sum_n \psi(h_n, i))}{\sum_{i'} \exp(\sum_n\psi(h_n, i'))}$
-\item $\psi(h_n, i) = w_n 1(h_n(i))$
 \item Logistic regression with attributes as features
+\begin{align*}
+p(i \mid h) &= \frac{\exp(\sum_n \psi(h_n, i))}{\sum_{i'} \exp(\sum_n\psi(h_n, i'))}\\
+\psi(h_n, i) &= W_{ni} 1(h_n(i))
+\end{align*}
+\item Learn $W$ on training data
     \begin{itemize}
-    \item Attribute-based LR + Info gain = rules
+    \item Many correlated features
+    \item Use $\ell_1$ regularization
     \end{itemize}
+\item Dialogue = online feature selection
 \end{itemize}
 \end{column}
 \begin{column}{0.30\textwidth}
