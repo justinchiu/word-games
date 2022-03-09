@@ -175,7 +175,7 @@ From Mutual Friends: Neural + Human
     \item Inference: What do I know? How do I represent it?
     \item Planning: What should I do and say?
     \end{itemize}
-\item Formulate as model-based optimization
+\item Formulate as model-based planning
     \begin{itemize}
     \item Plan what to say through a simple model of our partner
     \item Model of partner conditions on past information
@@ -184,9 +184,98 @@ From Mutual Friends: Neural + Human
 \end{frame}
 
 \begin{frame}
-\frametitle{Problem setup}
+\frametitle{Model-based planning}
 \begin{itemize}
-\item Goal: Mutually select the same item $i$ as partner
+\item Goal: Use a supervised static model in an interactive setting
+\item Belief state (What do I know)
+    \begin{itemize}
+    \item Interpretable summary of past information
+        that is relevant to task
+    \item Model latent partner information
+    \item Able to enforce constraints
+    \end{itemize}
+\item Model-based planning (What should I say)
+    \begin{itemize}
+    \item Pick best action by imagining how partner would respond
+    \item Can train partner response models on static data
+    \item Allows policies to perform better than the data they trained on
+    \item Need a measure of utility to determine which action to take
+        (heuristic: reduce uncertainty)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Belief model}
+\begin{itemize}
+\item Latent quantity $y$
+\item Actions $a_t$,observations $o_t$ (e.g. yes/no questions)
+\item Interaction history $h_t = (a_0,o_0,\ldots,a_t,o_t)$
+    contains all previous actions and observations
+\item Given an initial belief $p(y \mid h_t)$ + next action/observation,
+    obtain next belief via
+    $$p(y\mid h_{t+1})
+    = p(y \mid h_t, a_{t+1},o_{t+1})
+    \propto \underbrace{p(o_{t+1} \mid h_t, a_{t+1}, y)}_{\text{observation model}}p(y\mid h_t)$$
+\begin{center}
+\begin{tikzpicture}
+\node[obs] (h) {$h$};
+\node[latent, right=of h] (i) {$y$};
+\node[latent, above=of i] (o) {$o$};
+\node[latent, above=of h] (a) {$a$};
+\edge {h} {i};
+\edge {h} {o};
+\edge {i} {o};
+\edge {a} {o};
+\end{tikzpicture}
+\end{center}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Belief state}
+\begin{itemize}
+\item Use belief state $p(y \mid h)$ to capture information relevant to planning
+\item Most of the burden is on the observation model $p(o \mid h, a, y)$
+    \begin{itemize}
+    \item Must be able to predict partner
+    \end{itemize}
+\item Prior work assumes conditional independence $p(o \mid h, a, y) = p(o \mid a, y)$
+\item Why is this bad?
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Conditional independence in partner modeling}
+\begin{itemize}
+\item Prior work assumes conditional independence $p(o \mid h, a, y) = p(o \mid a, y)$
+\item If you ask the same question twice, your belief changes both times!
+    \begin{itemize}
+    \item $p(\text{yes} \mid h = \emptyset, y)$ can vary depending on the latent $y$
+    \item $p(\text{yes} \mid h = (\text{red dot?}, \text{yes}), a = \text{red dot?},y) = 1$,
+        since we just asked!
+    \end{itemize}
+\item `Questions with correlated answers' and deficient observation model
+    lead to uncalibrated beliefs, and therefore poor strategy
+\item Contribution: relax independence assumption
+    \begin{itemize}
+    \item Use copy attention from past answers to current answer
+    \item Probably solved by using Transformer (is there enough data)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Belief calibration: Other issues}
+\begin{itemize}
+\item 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Planning: Use prior work}
+\begin{itemize}
+\item Goal: Mutually select the same item $y$ as partner
     \begin{itemize}
     \item Row in knowledge base, dot
     \item Coordinate through dialogue
@@ -202,9 +291,10 @@ we need to chose an action $a$ by optimizing utility
     \item Utterance cost: Can't send a full paragraph
     \item Pragmatic cost: Want utterance to be accurate
     \end{itemize}
-\item Represent $h,a$ using attributes
+\item Ideally estimate and optimize future reward directly
     \begin{itemize}
-    \item Columns of knowledge base, spatial configuration of dots
+    \item Heuristic approximation of future reward $U$
+    \item Limited-horizon planning to minimize impact of model error
     \end{itemize}
 \end{itemize}
 \end{frame}
