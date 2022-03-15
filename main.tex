@@ -71,227 +71,229 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{frame}
 
 \begin{frame}
-\frametitle{Dialogue}
+\frametitle{Dialogue and information gathering}
 \begin{itemize}
-\item Communication is rarely unambiguous
+\item Resolve ambiguity and coordinate through dialogue
+\item OneCommon: Interactive, symmetric reference game
     \begin{itemize}
-    \item Ambiguity resolution through dialogue
-    \item Clarification questions
+    \item Isolates info gathering (and coordination)
+    \item Environment (dots) are completely static
+    \item Dynamism comes from dialogue only
     \end{itemize}
-\item Interactive, symmetric reference games
-    \begin{itemize}
-    \item Isolates ambiguity resolution
-    \item Both give and request information
-    \end{itemize}
+\item 20 questions with symmetric information constraints
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Games}
-
-\begin{columns}
-\begin{column}{0.5\textwidth}
-\centering
-\includegraphics[width=2in]{img/mf.png}
-\end{column}
-\begin{column}{0.5\textwidth}
-\centering
-\includegraphics[width=2in]{img/oc.png}
-\end{column}
-\end{columns}
-
-\vspace{2em}
-\centering
-Mutual Friends and OneCommon
-\end{frame}
-
-\begin{frame}
-\frametitle{Issue: Poor neural reasoning}
-From Mutual Friends: Neural + Human
+\frametitle{Previous SotA}
 \begin{itemize}
-\item A: Know anyone who likes chess?
-\item B: None of my friends like chess.
-\item (conversation continues)
-\item A: Crocheting?
-\item B: None like crocheting.
-\item A: Chess?
-\item B: None like chess either, haha.
+\item Purely supervised
+    \begin{itemize}
+    \item 
+    \end{itemize}
+\item Uncalibrated beliefs: overconfidence
+    \begin{itemize}
+    \item Pushes for to select a dot that will not work
+    \end{itemize}
+\item Research goal: Improve purely supervised models via model-based planning
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Issue: Poor neural reasoning}
-\centering
-\includegraphics[height=3in]{img/oc-success.png}
-\end{frame}
 
 \begin{frame}
-\frametitle{Issue: Poor neural reasoning}
-\centering
-\includegraphics[height=3in]{img/oc-failure.png}
-\end{frame}
-
-\begin{frame}
-\frametitle{Issue: Scaling rule-based}
+\frametitle{Fixing strategy with planning}
 \begin{itemize}
-\item Rule-based text generation and understanding is somewhat viable for Mutual Friends
-    \begin{itemize}
-    \item Very optimistic selection, but can be tuned
-    \end{itemize}
-\item Continuous and spatial nature of OneCommon makes writing rules difficult
-    \begin{itemize}
-    \item Size, color, and positions all continuous
-    \item Descriptions are relative
-    \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Current approaches: Two extremes}
-\begin{itemize}
-\item Neural encoder-decoder
+\item Prior: Fully supervised neural encoder-decoder
     \begin{itemize}
     \item Encode past interactions with a neural net
     \item Generate what to say with a neural net
     \item Brittle strategy, less brittle language
     \end{itemize}
-\item Rule-based
+\item Next: Model-based planning
     \begin{itemize}
-    \item Encode past interactions in a table
-    \item Use rules for what to say next
-    \item Nonparametric lookup of utterances
-    \item Brittle language, less brittle strategy
-    \end{itemize}
-\item Meet in middle with interpretable planning + neural language
-\end{itemize}
-\end{frame}
-
-
-\begin{frame}
-\frametitle{A dialogue turn}
-\begin{itemize}
-\item Engaging in dialogue requires
-    \begin{itemize}
-    \item Inference: What do I know? How do I represent it?
-    \item Planning: What should I do and say?
-    \end{itemize}
-\item Formulate as model-based planning
-    \begin{itemize}
-    \item Plan what to say through a simple model of our partner
-    \item Model of partner conditions on past information
+    \item Choose what to say by imagining how partner would respond
+    \item Say utterance with best expected outcome
+    \item Potentially stronger player than expert demonstrations
     \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Model-based planning}
+\frametitle{Challenges in model-based planning}
 \begin{itemize}
-\item Goal: Use a supervised static model in an interactive setting
-\item Belief state (What do I know)
+\item Partner modeling is hard
     \begin{itemize}
-    \item Interpretable summary of past information
-        that is relevant to task
-    \item Model latent partner information
-    \item Able to enforce constraints
+    \item Variable amount of information
+    \item Random strategies
     \end{itemize}
-\item Model-based planning (What should I say)
+\item Multi-turn planning
     \begin{itemize}
-    \item Pick best action by imagining how partner would respond
-    \item Can train partner response models on static data
-    \item Allows policies to perform better than the data they trained on
-    \item Need a measure of utility to determine which action to take
-        (heuristic: reduce uncertainty)
+    \item Accuracy of planning depends greatly on the partner model
+    \item Errors from the partner model will compound over time
     \end{itemize}
+\item Single-turn planning
+    \begin{itemize}
+    \item Removes compounding errors
+    \item Optimize a dialogue progress heuristic: uncertainty reduction
+    \item Requires belief
+    \end{itemize}
+\item Use what dots partner also sees as belief
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Planning}
+\begin{itemize}
+\item Plan by imaging partner response
+$$\max_{u} \Es{p(r \mid h, u)}{\text{Utility}(h, u, r)}$$
+\item Utterance $u$, response $r$, history $h$
+\item Utility should approximate dialogue progress
+    \begin{itemize}
+    \item Goal of dialogue is information gathering and coordination
+    \item Focus on information gathering
+    \end{itemize}
+\item Utility a function of belief
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Planning with Belief}
+\begin{itemize}
+\item Introduce belief state $p(s \mid h)$
+    \begin{itemize}
+    \item State $s$ is what dots partner can also see
+    \end{itemize}
+\item Incorporate belief in planning
+$$\max_{u} \Es{p(r \mid h, u, s)p(s \mid h)}{\text{Certainty}(p(s \mid h, u, r))}$$
+\item Obtain
+$$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p(s \mid h)}$$
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{Belief model}
 \begin{itemize}
-\item Latent quantity $y$
-\item Actions $a_t$,observations $o_t$ (e.g. yes/no questions)
-\item Interaction history $h_t = (a_0,o_0,\ldots,a_t,o_t)$
-    contains all previous actions and observations
-\item Given an initial belief $p(y \mid h_t)$ + next action/observation,
-    obtain next belief via
-    $$p(y\mid h_{t+1})
-    = p(y \mid h_t, a_{t+1},o_{t+1})
-    \propto \underbrace{p(o_{t+1} \mid h_t, a_{t+1}, y)}_{\text{observation model}}p(y\mid h_t)$$
+\item Static latent quantity $y$: which dots do they also see
+    \begin{itemize}
+    \item Alternative: actual field of view
+    \end{itemize}
+\item Actions $a_t$, observations $o_t$
+    \begin{itemize}
+    \item Prior work: yes/no questions (20 questions)
+    \item OneCommon: unrestricted language for both
+    \end{itemize}
+\item Uniform prior $p(y)$ over 7 choose 4 dots partner also sees
+\item Observation model $p(o_t \mid a_{1:t-1},o_{1:t-1}, y)$
+    \begin{itemize}
+    \item Pick $y$ that is observed during training
+    \item Ideally fully supervised
+    \item Prior work\footnote{\citet{yu,padmakumar}}
+        makes naive Bayes assumption $p(o_t \mid a_t, y)$ 
+    \end{itemize}
 \begin{center}
 \begin{tikzpicture}
-\node[obs] (h) {$h$};
-\node[latent, right=of h] (i) {$y$};
-\node[latent, above=of i] (o) {$o$};
-\node[latent, above=of h] (a) {$a$};
-\edge {h} {i};
-\edge {h} {o};
-\edge {i} {o};
-\edge {a} {o};
+\node[latent] (y) {$y$};
+\node[obs] at (-1.5,-1.3) (o1) {$o_1$};
+\node[obs] at (0, -1.3) (o2) {$o_2$};
+\node[latent] at (1.5,-1.3) (o3) {$o_3$};
+
+\node[obs, below=.5cm of o1] (a1) {$a_1$};
+\node[obs, below=.5cm of o2] (a2) {$a_2$};
+\node[obs, below=.5 of o3] (a3) {$a_3$};
+
+\edge {y} {o1};
+\edge {y} {o2};
+\edge {y} {o3};
+
+\edge {a1} {o1};
+\edge {a1} {o2};
+\edge {a1} {o3};
+\edge {a2} {o2};
+\edge {a2} {o3};
+\edge {a3} {o3};
+
+\edge {o1} {o2};
+\path (o1) edge[->, bend right=30] (o3);
+\edge {o2} {o3};
 \end{tikzpicture}
 \end{center}
 \end{itemize}
 \end{frame}
 
+
 \begin{frame}
-\frametitle{Belief state}
+\frametitle{Belief update}
 \begin{itemize}
-\item Use belief state $p(y \mid h)$ to capture information relevant to planning
-\item Most of the burden is on the observation model $p(o \mid h, a, y)$
-    \begin{itemize}
-    \item Must be able to predict partner
-    \end{itemize}
-\item Prior work assumes conditional independence $p(o \mid h, a, y) = p(o \mid a, y)$
-\item Why is this bad?
+\item Interaction history $h_t = (a_0,o_0,\ldots,a_t,o_t)$
+    contains all previous actions and observations
+\item Given an initial belief $p(y \mid h_t)$ + next action/observation,
+    obtain next belief via
+    $$p(y \mid h_t, a_{t+1},o_{t+1})
+    \propto \underbrace{p(o_{t+1} \mid h_t, a_{t+1}, y)}_{\text{observation model}}p(y\mid h_t)$$
+\item Belief calibration depends on accuracy of observation model
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Conditional independence in partner modeling}
+\frametitle{Observation model}
 \begin{itemize}
-\item Prior work assumes conditional independence $p(o \mid h, a, y) = p(o \mid a, y)$
-\item If you ask the same question twice, your belief changes both times!
+\item Example exchange
     \begin{itemize}
-    \item $p(\text{yes} \mid h = \emptyset, y)$ can vary depending on the latent $y$
-    \item $p(\text{yes} \mid h = (\text{red dot?}, \text{yes}), a = \text{red dot?},y) = 1$,
-        since we just asked!
+    \item Action: Do you see a red dot?
+    \item Observation: No, but I see a blue one.
     \end{itemize}
-\item `Questions with correlated answers' and deficient observation model
-    lead to uncalibrated beliefs, and therefore poor strategy
-\item Contribution: relax independence assumption
+\item Utterances are multifaceted
     \begin{itemize}
-    \item Use copy attention from past answers to current answer
-    \item Probably solved by using Transformer (is there enough data)
+    \item Responses contain more information than asked
+    \item New information injected by partner due symmetric roles
+    \item Very difficult to model new information
+    \end{itemize}
+\item Simplifying assumption: only model response, not new information
+    \begin{itemize}
+    \item Update belief state afterwards by pretending we asked corresponding question
+    \item Allows reduction to 20 questions / assymetric role
+    \end{itemize}
+\item Supervised training needs observed $o,h,a,y$
+    \begin{itemize}
+    \item Main question: How to extract responses $o$?
     \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Belief calibration: Other issues}
+\frametitle{Response extraction}
 \begin{itemize}
-\item 
+\item Heuristic: Use repeated mentions from response
+    \begin{itemize}
+    \item Do you see a red dot? Yes, the one next to the blue one?
+    \end{itemize}
+\item Generalization: TBD
+\item Recap: we have
+    \begin{itemize}
+    \item Belief over shared dots $p(y\mid h)$
+    \item Observation model $p(o \mid h,a,y)$
+    \item Update $p(y\mid h, a, o)$
+    \item Reduced to assymmetric case by extracting response only
+    \end{itemize}
+\item Next: Single-turn planning
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Planning: Use prior work}
+\frametitle{Planning: Use prior work in assymmetric setting}
 \begin{itemize}
-\item Goal: Mutually select the same item $y$ as partner
-    \begin{itemize}
-    \item Row in knowledge base, dot
-    \item Coordinate through dialogue
-    \end{itemize}
 \item Given history $h$,
-we need to chose an action $a$ by optimizing utility
+we need to chose an action $a$ by optimizing heuristic utility
 \begin{equation*}
 \max_a U(h, a)
 \end{equation*}
-\item Utility $U$ = information gain + utterance + pragmatic cost
+\item Utility $U$ = information gain - utterance - pragmatic cost
     \begin{itemize}
-    \item IG: Entropy reduction of item selection probability
+    \item IG: Reduce uncertainty
     \item Utterance cost: Can't send a full paragraph
     \item Pragmatic cost: Want utterance to be accurate
     \end{itemize}
-\item Ideally estimate and optimize future reward directly
+\item Ideally would estimate and optimize future reward directly
     \begin{itemize}
     \item Heuristic approximation of future reward $U$
     \item Limited-horizon planning to minimize impact of model error
@@ -299,6 +301,29 @@ we need to chose an action $a$ by optimizing utility
 \end{itemize}
 \end{frame}
 
+\begin{frame}
+\frametitle{Expected information gain}
+\begin{itemize}
+\item Maximizing expected information gain equivalent to minimizing uncertainty
+$$\min_a \sum_o\sum_y
+    \underbrace{p(o\mid h,a,y)}_{\text{observation model}}
+    \underbrace{p(y\mid h)}_{\text{belief}}
+    \text{Uncertainty}(\underbrace{p(y \mid h,a,o)}_{\text{new belief}})$$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Summary}
+\begin{itemize}
+\item Goal: Extend methods from 20 questions to symmetric, language setting
+\item Extract relevant information from partner utterances
+\item Use explicit belief state + single-turn planning heuristic
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{End}
+\end{frame}
 
 \begin{frame}
 \frametitle{Information Gain}
@@ -306,15 +331,14 @@ we need to chose an action $a$ by optimizing utility
 \item A good action should decrease uncertainty
 \item Requires
     \begin{itemize}
-    \item Belief distribution over selection item given history $p(i \mid h)$
-    \item Partner response model $p(o \mid h, a, i)$
+    \item Belief distribution over selection item given history $p(y \mid h)$
+    \item Partner response model $p(o \mid h, a, y)$
     \end{itemize}
 \item Represent a turn as
-
 \begin{center}
 \begin{tikzpicture}
 \node[obs] (h) {$h$};
-\node[latent, right=of h] (i) {$i$};
+\node[latent, right=of h] (i) {$y$};
 \node[latent, above=of i] (o) {$o$};
 \node[latent, above=of h] (a) {$a$};
 \edge {h} {i};
@@ -354,72 +378,6 @@ we need to chose an action $a$ by optimizing utility
 \end{tikzpicture}
 \end{center}
 \item Abstract observation $\tilde{o} \bigCI h \mid \tilde{a}, i$
-\end{itemize}
-\end{frame}
-
-
-\begin{frame}
-\frametitle{State and belief: Representation}
-\begin{columns}
-\begin{column}{0.70\textwidth}
-\begin{itemize}
-\item History: whether attributes have been confirmed $h \in \set{0,1}^N$
-\item Items: $i \in [M], M << N$
-\item Logistic regression with attributes as features
-\begin{align*}
-p(i \mid h) &= \frac{\exp(\sum_n \psi(h_n, i))}{\sum_{i'} \exp(\sum_n\psi(h_n, i'))}\\
-\psi(h_n, i) &= W_{ni} 1(h_n(i))
-\end{align*}
-\item Generate per-game $W = f(\text{context})$ from neural network
-    \begin{itemize}
-    \item Many correlated features
-    \item How to (conditionally) sparsify?
-    \end{itemize}
-\item Dialogue = online feature selection
-\end{itemize}
-\end{column}
-\begin{column}{0.30\textwidth}
-\centering
-\begin{tikzpicture}
-\node[latent] (h1) {$h_1$};
-\node[latent, below=1em of h1] (h2) {$h_2$};
-\node[latent, below=1em of h2] (h3) {$h_3$};
-\node[latent, below=1em of h3] (h4) {$h_4$};
-\node[latent, below right=.5em and 2em of h1] (i1) {$i_1$};
-\node[latent, below=1em of i1] (i2) {$i_2$};
-\node[latent, below=1em of i2] (i3) {$i_3$};
-
-\edge[-] {h1} {i1};
-\edge[-] {h1} {i2};
-\edge[-] {h1} {i3};
-\edge[-] {h2} {i1};
-\edge[-] {h2} {i2};
-\edge[-] {h2} {i3};
-\edge[-] {h3} {i1};
-\edge[-] {h3} {i2};
-\edge[-] {h3} {i3};
-\edge[-] {h4} {i1};
-\edge[-] {h4} {i2};
-\edge[-] {h4} {i3};
-\end{tikzpicture}
-\end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}
-\frametitle{Attributes}
-\begin{itemize}
-\item Mutual Friends
-    \begin{itemize}
-    \item Combinations of columns of knowledge base
-    \item Name, major, company
-    \end{itemize}
-\item OneCommon
-    \begin{itemize}
-    \item Which dots are mentioned
-    \item Need to learn lower-level attributes
-    \end{itemize}
-\item Numerical reasoning?
 \end{itemize}
 \end{frame}
 
@@ -502,15 +460,12 @@ p(i \mid h) &= \frac{\exp(\sum_n \psi(h_n, i))}{\sum_{i'} \exp(\sum_n\psi(h_n, i
 
 
 \begin{frame}
-\frametitle{Value: Information Gain}
-\begin{itemize}
-\item drop slide
-\item Picture would be much better here...
-\item Value = expected information gain
+\frametitle{Expected Information Gain}
 \begin{align*}
 IG(h, a) &= H(i \mid h) - \Es{p(o\mid h,a)}{H(i \mid h, a, o)}\\
 \Es{p(o\mid h,a)}{H(i \mid h, a)} &= \sum_o\sum_{i'}p(o\mid h,a,i)p(i\mid h)H(i \mid h,a,o)
 \end{align*}
+\begin{itemize}
 \item Equivalent to minimizing expected uncertainty after receiving a response
 \item Cite Yu et al, White et al
 \end{itemize}
@@ -521,5 +476,115 @@ IG(h, a) &= H(i \mid h) - \Es{p(o\mid h,a)}{H(i \mid h, a, o)}\\
 %\printbibliography
 \bibliography{bib.bib}
 \end{frame}
+
+\begin{frame}
+\frametitle{Games}
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[width=2in]{img/mf.png}
+\end{column}
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[width=2in]{img/oc.png}
+\end{column}
+\end{columns}
+
+\vspace{2em}
+\centering
+Mutual Friends and OneCommon
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue: Poor neural reasoning}
+From Mutual Friends: Neural + Human
+\begin{itemize}
+\item A: Know anyone who likes chess?
+\item B: None of my friends like chess.
+\item (conversation continues)
+\item A: Crocheting?
+\item B: None like crocheting.
+\item A: Chess?
+\item B: None like chess either, haha.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Sample of prior work in model-based planning}
+\begin{itemize}
+\item 20 questions \citep{yu,padmakumar}
+    \begin{itemize}
+    \item Sym: Assymmetric questioner + answerer
+    \item Turns: Multi-turn game
+    \item Lang: Closed class answers (observations)
+    \item Heur: Expected info gain heuristic
+    \end{itemize}
+\item EVPI \citep{rao,rao2}
+    \begin{itemize}
+    \item Sym: Assymmetric questioner + answerer
+    \item Turns: No interaction, single turn game
+    \item Lang: Open
+    \item Heur: Expected utility heuristic
+    \end{itemize}
+\item RSA reference game \citep{khani}
+    \begin{itemize}
+    \item Sym: Symmetric
+    \item Turns: Multi-turn game
+    \item Lang: Symbolic language
+    \item Heur: Bounded depth search
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Conditioning in partner modeling}
+\begin{itemize}
+\item Assuming conditional independence $p(o \mid h, a, y) = p(o \mid a, y)$ is harmful
+\item If you ask the same question twice, your belief changes both times!
+    \begin{itemize}
+    \item $p(\text{yes} \mid h = \emptyset, a=\text{red dot?},y)$ can vary depending on the latent $y$
+    \item $p(\text{yes} \mid h = (\text{red dot?}, \text{yes}), a = \text{red dot?},y) = 1$,
+        since we just asked!
+    \end{itemize}
+\item `Questions with correlated answers' and deficient observation model
+    lead to uncalibrated beliefs, and therefore poor strategy
+\item Contribution: relax independence assumption
+    \begin{itemize}
+    \item Let past obs vote on current one (weighted by action similarity)
+    \item Probably solved by Transformers\footnote{Copy attention,
+        depends on amount of data}
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Example dialogue 1: Overconfidence}
+\centering
+\includegraphics[width=\textwidth]{img/words1.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Example dialogue 2: Overconfidence}
+\centering
+\includegraphics[width=0.75\textwidth]{img/dots2.png}
+\includegraphics[width=\textwidth]{img/words2.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Example dialogue 3: Good humans}
+\centering
+\includegraphics[width=0.75\textwidth]{img/dots3.png}
+\includegraphics[width=\textwidth,clip,trim={0 9cm 0 0}]{img/words3.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Example dialogue 3: Good humans}
+\centering
+\includegraphics[width=0.75\textwidth]{img/dots3.png}
+\includegraphics[width=\textwidth,clip,trim={0 0 0 9cm}]{img/words3.png}
+\end{frame}
+
+
 
 \end{document}
