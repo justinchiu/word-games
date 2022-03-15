@@ -172,39 +172,32 @@ $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p
 \end{frame}
 
 \begin{frame}
-\frametitle{Belief model}
+\frametitle{Partner model}
 \begin{itemize}
-\item Static latent quantity $y$: which dots do they also see
+\item Static latent state $s$: which dots do they also see
     \begin{itemize}
     \item Alternative: actual field of view
     \end{itemize}
-\item Actions $a_t$, observations $o_t$
+\item Uniform prior $p(s)$ over 7 choose 4 dots partner also sees
+\item Partner response model $p(r_t \mid u_{1:t},r_{1:t-1}, s)$
     \begin{itemize}
-    \item Prior work: yes/no questions (20 questions)
-    \item OneCommon: unrestricted language for both
-    \end{itemize}
-\item Uniform prior $p(y)$ over 7 choose 4 dots partner also sees
-\item Observation model $p(o_t \mid a_{1:t-1},o_{1:t-1}, y)$
-    \begin{itemize}
-    \item Pick $y$ that is observed during training
-    \item Ideally fully supervised
-    \item Prior work\footnote{\citet{yu,padmakumar}}
-        makes naive Bayes assumption $p(o_t \mid a_t, y)$ 
+    \item Pick $s$ that is observed during training
+    \item History $h_t = (u_{1:t-1}, r_{1:t-1})$
     \end{itemize}
 \begin{center}
 \begin{tikzpicture}
-\node[latent] (y) {$y$};
-\node[obs] at (-1.5,-1.3) (o1) {$o_1$};
-\node[obs] at (0, -1.3) (o2) {$o_2$};
-\node[latent] at (1.5,-1.3) (o3) {$o_3$};
+\node[latent] (s) {$s$};
+\node[obs] at (-1.5,-1.3) (o1) {$r_1$};
+\node[obs] at (0, -1.3) (o2) {$r_2$};
+\node[latent] at (1.5,-1.3) (o3) {$r_3$};
 
-\node[obs, below=.5cm of o1] (a1) {$a_1$};
-\node[obs, below=.5cm of o2] (a2) {$a_2$};
-\node[obs, below=.5 of o3] (a3) {$a_3$};
+\node[obs, below=.5cm of o1] (a1) {$u_1$};
+\node[obs, below=.5cm of o2] (a2) {$u_2$};
+\node[obs, below=.5 of o3] (a3) {$u_3$};
 
-\edge {y} {o1};
-\edge {y} {o2};
-\edge {y} {o3};
+\edge {s} {o1};
+\edge {s} {o2};
+\edge {s} {o3};
 
 \edge {a1} {o1};
 \edge {a1} {o2};
@@ -225,18 +218,17 @@ $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p
 \begin{frame}
 \frametitle{Belief update}
 \begin{itemize}
-\item Interaction history $h_t = (a_0,o_0,\ldots,a_t,o_t)$
-    contains all previous actions and observations
-\item Given an initial belief $p(y \mid h_t)$ + next action/observation,
+\item Interaction history $h_t$ contains all previous utterances and responses
+\item Given an initial belief $p(s \mid h_t)$ + next utterance/response,
     obtain next belief via
-    $$p(y \mid h_t, a_{t+1},o_{t+1})
-    \propto \underbrace{p(o_{t+1} \mid h_t, a_{t+1}, y)}_{\text{observation model}}p(y\mid h_t)$$
+    $$p(s \mid h_t, a_{t},o_{t})
+    \propto \underbrace{p(o_{t} \mid h_t, a_{t}, s)}_{\text{response model}}p(s\mid h_t)$$
 \item Belief calibration depends on accuracy of observation model
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Observation model}
+\frametitle{Response model}
 \begin{itemize}
 \item Example exchange
     \begin{itemize}
