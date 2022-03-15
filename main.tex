@@ -238,18 +238,21 @@ $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p
 \item Utterances are multifaceted
     \begin{itemize}
     \item Responses contain more information than asked
-    \item New information injected by partner due symmetric roles
+    \item New information injected by partner not constrained
     \item Very difficult to model new information
     \end{itemize}
-\item Simplifying assumption: only model response, not new information
-    \begin{itemize}
-    \item Update belief state afterwards by pretending we asked corresponding question
-    \item Allows reduction to 20 questions / assymetric role
-    \end{itemize}
-\item Supervised training needs observed $o,h,a,y$
-    \begin{itemize}
-    \item Main question: How to extract responses $o$?
-    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Incorporating informativity}
+\begin{itemize}
+\item Add partner-dependent informativity $i$
+\item Determines partner willingness to give more information
+$$\max_{u} \Es{p(r \mid h, u, s, i)p(s \mid h)p(i)}{\text{Certainty}(p(s \mid h, u, r))}$$
+\item More information improves game-play
+\item Introduce uncertainty set over $i \in [\text{low}, \text{high}]$
+\item Optimize worst-caset informativity
 \end{itemize}
 \end{frame}
 
