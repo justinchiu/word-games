@@ -1,0 +1,525 @@
+
+%\RequirePackage{pdf15}
+
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{mystyle}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{subcaption}
+
+\usepackage{natbib}
+\bibliographystyle{apalike}
+%\usepackage[style=authortitle,backend=biber]{biblatex}
+%\addbibresource{anthology.bib}
+%\addbibresource{emnlp2020.bib}
+\renewcommand{\footnotesize}{\scriptsize}
+
+\newcommand{\bigCI}{\mathrel{\text{\scalebox{1.07}{$\perp\mkern-10mu\perp$}}}}
+
+\usepackage{tikz-dependency}
+\usetikzlibrary{shapes.arrows, positioning, fit, bayesnet,
+    arrows,backgrounds,patterns,matrix,calc,shadows,plotmarks,
+    shapes,positioning,automata,positioning,spy,scopes,chains,decorations,decorations.pathreplacing}
+
+\newcommand{\FancyUpArrow}{\begin{tikzpicture}[baseline=-0.3em]
+\node[single arrow,draw,rotate=90,single arrow head extend=0.2em,inner
+ysep=0.2em,transform shape,line width=0.05em,top color=green,bottom color=green!50!black] (X){};
+\end{tikzpicture}}
+\newcommand{\FancyDownArrow}{\begin{tikzpicture}[baseline=-0.3em]
+\node[single arrow,draw,rotate=-90,single arrow head extend=0.2em,inner
+ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!black] (X){};
+\end{tikzpicture}}
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+% quotes
+\usepackage[style=british]{csquotes}
+
+\def\signed #1{{\leavevmode\unskip\nobreak\hfil\penalty50\hskip1em
+  \hbox{}\nobreak\hfill #1%
+  \parfillskip=0pt \finalhyphendemerits=0 \endgraf}}
+
+\newsavebox\mybox
+\newenvironment{aquote}[1]
+  {\savebox\mybox{#1}\begin{quote}\openautoquote\hspace*{-.7ex}}
+  {\unskip\closeautoquote\vspace*{1mm}\signed{\usebox\mybox}\end{quote}}
+
+%Information to be included in the title page:
+\title{Word Games}
+\author{J Chiu}
+
+\setbeamertemplate{navigation symbols}{} 
+\setbeamertemplate{footline}[frame number]
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Dialogue}
+\begin{itemize}
+\item Communication is rarely unambiguous
+    \begin{itemize}
+    \item Ambiguity resolution through dialogue
+    \item Clarification questions
+    \end{itemize}
+\item Interactive, symmetric reference games
+    \begin{itemize}
+    \item Isolates ambiguity resolution
+    \item Both give and request information
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Games}
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[width=2in]{img/mf.png}
+\end{column}
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[width=2in]{img/oc.png}
+\end{column}
+\end{columns}
+
+\vspace{2em}
+\centering
+Mutual Friends and OneCommon
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue: Poor neural reasoning}
+From Mutual Friends: Neural + Human
+\begin{itemize}
+\item A: Know anyone who likes chess?
+\item B: None of my friends like chess.
+\item (conversation continues)
+\item A: Crocheting?
+\item B: None like crocheting.
+\item A: Chess?
+\item B: None like chess either, haha.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue: Poor neural reasoning}
+\centering
+\includegraphics[height=3in]{img/oc-success.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue: Poor neural reasoning}
+\centering
+\includegraphics[height=3in]{img/oc-failure.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Issue: Scaling rule-based}
+\begin{itemize}
+\item Rule-based text generation and understanding is somewhat viable for Mutual Friends
+    \begin{itemize}
+    \item Very optimistic selection, but can be tuned
+    \end{itemize}
+\item Continuous and spatial nature of OneCommon makes writing rules difficult
+    \begin{itemize}
+    \item Size, color, and positions all continuous
+    \item Descriptions are relative
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Current approaches: Two extremes}
+\begin{itemize}
+\item Neural encoder-decoder
+    \begin{itemize}
+    \item Encode past interactions with a neural net
+    \item Generate what to say with a neural net
+    \item Brittle strategy, less brittle language
+    \end{itemize}
+\item Rule-based
+    \begin{itemize}
+    \item Encode past interactions in a table
+    \item Use rules for what to say next
+    \item Nonparametric lookup of utterances
+    \item Brittle language, less brittle strategy
+    \end{itemize}
+\item Meet in middle with interpretable planning + neural language
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{A dialogue turn}
+\begin{itemize}
+\item Engaging in dialogue requires
+    \begin{itemize}
+    \item Inference: What do I know? How do I represent it?
+    \item Planning: What should I do and say?
+    \end{itemize}
+\item Formulate as model-based planning
+    \begin{itemize}
+    \item Plan what to say through a simple model of our partner
+    \item Model of partner conditions on past information
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Model-based planning}
+\begin{itemize}
+\item Goal: Use a supervised static model in an interactive setting
+\item Belief state (What do I know)
+    \begin{itemize}
+    \item Interpretable summary of past information
+        that is relevant to task
+    \item Model latent partner information
+    \item Able to enforce constraints
+    \end{itemize}
+\item Model-based planning (What should I say)
+    \begin{itemize}
+    \item Pick best action by imagining how partner would respond
+    \item Can train partner response models on static data
+    \item Allows policies to perform better than the data they trained on
+    \item Need a measure of utility to determine which action to take
+        (heuristic: reduce uncertainty)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Belief model}
+\begin{itemize}
+\item Latent quantity $y$
+\item Actions $a_t$,observations $o_t$ (e.g. yes/no questions)
+\item Interaction history $h_t = (a_0,o_0,\ldots,a_t,o_t)$
+    contains all previous actions and observations
+\item Given an initial belief $p(y \mid h_t)$ + next action/observation,
+    obtain next belief via
+    $$p(y\mid h_{t+1})
+    = p(y \mid h_t, a_{t+1},o_{t+1})
+    \propto \underbrace{p(o_{t+1} \mid h_t, a_{t+1}, y)}_{\text{observation model}}p(y\mid h_t)$$
+\begin{center}
+\begin{tikzpicture}
+\node[obs] (h) {$h$};
+\node[latent, right=of h] (i) {$y$};
+\node[latent, above=of i] (o) {$o$};
+\node[latent, above=of h] (a) {$a$};
+\edge {h} {i};
+\edge {h} {o};
+\edge {i} {o};
+\edge {a} {o};
+\end{tikzpicture}
+\end{center}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Belief state}
+\begin{itemize}
+\item Use belief state $p(y \mid h)$ to capture information relevant to planning
+\item Most of the burden is on the observation model $p(o \mid h, a, y)$
+    \begin{itemize}
+    \item Must be able to predict partner
+    \end{itemize}
+\item Prior work assumes conditional independence $p(o \mid h, a, y) = p(o \mid a, y)$
+\item Why is this bad?
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Conditional independence in partner modeling}
+\begin{itemize}
+\item Prior work assumes conditional independence $p(o \mid h, a, y) = p(o \mid a, y)$
+\item If you ask the same question twice, your belief changes both times!
+    \begin{itemize}
+    \item $p(\text{yes} \mid h = \emptyset, y)$ can vary depending on the latent $y$
+    \item $p(\text{yes} \mid h = (\text{red dot?}, \text{yes}), a = \text{red dot?},y) = 1$,
+        since we just asked!
+    \end{itemize}
+\item `Questions with correlated answers' and deficient observation model
+    lead to uncalibrated beliefs, and therefore poor strategy
+\item Contribution: relax independence assumption
+    \begin{itemize}
+    \item Use copy attention from past answers to current answer
+    \item Probably solved by using Transformer (is there enough data)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Belief calibration: Other issues}
+\begin{itemize}
+\item 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Planning: Use prior work}
+\begin{itemize}
+\item Goal: Mutually select the same item $y$ as partner
+    \begin{itemize}
+    \item Row in knowledge base, dot
+    \item Coordinate through dialogue
+    \end{itemize}
+\item Given history $h$,
+we need to chose an action $a$ by optimizing utility
+\begin{equation*}
+\max_a U(h, a)
+\end{equation*}
+\item Utility $U$ = information gain + utterance + pragmatic cost
+    \begin{itemize}
+    \item IG: Entropy reduction of item selection probability
+    \item Utterance cost: Can't send a full paragraph
+    \item Pragmatic cost: Want utterance to be accurate
+    \end{itemize}
+\item Ideally estimate and optimize future reward directly
+    \begin{itemize}
+    \item Heuristic approximation of future reward $U$
+    \item Limited-horizon planning to minimize impact of model error
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Information Gain}
+\begin{itemize}
+\item A good action should decrease uncertainty
+\item Requires
+    \begin{itemize}
+    \item Belief distribution over selection item given history $p(i \mid h)$
+    \item Partner response model $p(o \mid h, a, i)$
+    \end{itemize}
+\item Represent a turn as
+
+\begin{center}
+\begin{tikzpicture}
+\node[obs] (h) {$h$};
+\node[latent, right=of h] (i) {$i$};
+\node[latent, above=of i] (o) {$o$};
+\node[latent, above=of h] (a) {$a$};
+\edge {h} {i};
+\edge {h} {o};
+\edge {i} {o};
+\edge {a} {o};
+\end{tikzpicture}
+\end{center}
+\item Language and planning coupled
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Decoupling language and planning}
+\begin{itemize}
+\item Compress actions $a$ and observations $o$ into language and abstract representations
+    $\tilde{a}, \tilde{o}$
+    \begin{itemize}
+    \item Language is high dimensional, redundant, and inefficient for planning
+    \end{itemize}
+\item Represent a turn as
+\begin{center}
+\begin{tikzpicture}
+\node[obs] (h) {$h$};
+\node[latent, right=of h] (i) {$i$};
+\node[latent, above=of i] (to) {$\tilde{o}$};
+\node[latent, above=of h] (ta) {$\tilde{a}$};
+\node[latent, above=of to] (o) {$o$};
+\node[latent, above=of ta] (a) {$a$};
+\edge {h} {i};
+\edge {h} {o};
+\edge {i} {to};
+\edge {ta} {a};
+\edge {ta} {to};
+\edge {to} {o};
+\edge {a} {o};
+\end{tikzpicture}
+\end{center}
+\item Abstract observation $\tilde{o} \bigCI h \mid \tilde{a}, i$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{State and belief: Representation}
+\begin{columns}
+\begin{column}{0.70\textwidth}
+\begin{itemize}
+\item History: whether attributes have been confirmed $h \in \set{0,1}^N$
+\item Items: $i \in [M], M << N$
+\item Logistic regression with attributes as features
+\begin{align*}
+p(i \mid h) &= \frac{\exp(\sum_n \psi(h_n, i))}{\sum_{i'} \exp(\sum_n\psi(h_n, i'))}\\
+\psi(h_n, i) &= W_{ni} 1(h_n(i))
+\end{align*}
+\item Generate per-game $W = f(\text{context})$ from neural network
+    \begin{itemize}
+    \item Many correlated features
+    \item How to (conditionally) sparsify?
+    \end{itemize}
+\item Dialogue = online feature selection
+\end{itemize}
+\end{column}
+\begin{column}{0.30\textwidth}
+\centering
+\begin{tikzpicture}
+\node[latent] (h1) {$h_1$};
+\node[latent, below=1em of h1] (h2) {$h_2$};
+\node[latent, below=1em of h2] (h3) {$h_3$};
+\node[latent, below=1em of h3] (h4) {$h_4$};
+\node[latent, below right=.5em and 2em of h1] (i1) {$i_1$};
+\node[latent, below=1em of i1] (i2) {$i_2$};
+\node[latent, below=1em of i2] (i3) {$i_3$};
+
+\edge[-] {h1} {i1};
+\edge[-] {h1} {i2};
+\edge[-] {h1} {i3};
+\edge[-] {h2} {i1};
+\edge[-] {h2} {i2};
+\edge[-] {h2} {i3};
+\edge[-] {h3} {i1};
+\edge[-] {h3} {i2};
+\edge[-] {h3} {i3};
+\edge[-] {h4} {i1};
+\edge[-] {h4} {i2};
+\edge[-] {h4} {i3};
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Attributes}
+\begin{itemize}
+\item Mutual Friends
+    \begin{itemize}
+    \item Combinations of columns of knowledge base
+    \item Name, major, company
+    \end{itemize}
+\item OneCommon
+    \begin{itemize}
+    \item Which dots are mentioned
+    \item Need to learn lower-level attributes
+    \end{itemize}
+\item Numerical reasoning?
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Experiments}
+\begin{itemize}
+\item Mutual Friends
+    \begin{itemize}
+    \item Augment rule-based (prior work) to optimize info gain
+    \item After OneCommon: Add neural on top
+    \end{itemize}
+\item OneCommon
+    \begin{itemize}
+    \item Use attributes = raw mention configurations
+        \begin{itemize}
+        \item Need belief / info gain / LR weights
+        \item How to deal with redundancy? (i.e. correlation between features)
+        \end{itemize}
+    \item Learn latent refinement on top of mention configurations
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Information gain issues}
+\begin{itemize}
+\item Best info gain could be to ask the same question twice
+\item Usual fix: Limit to asking once only
+\item Would be nice to have a principled way to deal with correlated
+    features though
+\end{itemize}
+\centering
+\includegraphics[height=2in]{src/entropy.png}
+\begin{itemize}
+\item Second turn after taking action with lowest entropy
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Related work: 20 questions}
+\begin{itemize}
+\item \citet{padmakumar}
+    \begin{itemize}
+    \item Attribute-based classification (string heuristic to map to description)
+        + activate learning about attributes
+    \item Info gain (on top of binary unweighted logistic regression) as feature for
+        RL policy
+    \end{itemize}
+\item \citet{yu}
+    \begin{itemize}
+    \item Question-based classification (attributes)
+    \item Learn weights of features
+    \item Do not consider feature correlations
+    \end{itemize}
+\item More interesting language, symmetric setting
+\item Learn weights, account for correlation
+\item Symmetry, deal with unexpected features
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{End}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Concerns}
+\begin{itemize}
+\item Would a large LM solve all of this?
+    \begin{itemize}
+    \item Fine tune on small onecommon dataset, are there still repeats?
+    \item Unlikely to solve strategy / over optimistism
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{End}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Value: Information Gain}
+\begin{itemize}
+\item drop slide
+\item Picture would be much better here...
+\item Value = expected information gain
+\begin{align*}
+IG(h, a) &= H(i \mid h) - \Es{p(o\mid h,a)}{H(i \mid h, a, o)}\\
+\Es{p(o\mid h,a)}{H(i \mid h, a)} &= \sum_o\sum_{i'}p(o\mid h,a,i)p(i\mid h)H(i \mid h,a,o)
+\end{align*}
+\item Equivalent to minimizing expected uncertainty after receiving a response
+\item Cite Yu et al, White et al
+\end{itemize}
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+\frametitle{Citations}
+%\printbibliography
+\bibliography{bib.bib}
+\end{frame}
+
+\end{document}
