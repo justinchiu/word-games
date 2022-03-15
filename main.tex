@@ -89,13 +89,13 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \begin{itemize}
 \item Purely supervised
     \begin{itemize}
-    \item 
+    \item Upper-bounded by performance of demonstrators
     \end{itemize}
 \item Uncalibrated beliefs: overconfidence
     \begin{itemize}
     \item Pushes for to select a dot that will not work
     \end{itemize}
-\item Research goal: Improve purely supervised models via model-based planning
+\item Research goal: Improve supervised models via model-based planning
 \end{itemize}
 \end{frame}
 
@@ -124,7 +124,7 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \item Partner modeling is hard
     \begin{itemize}
     \item Variable amount of information
-    \item Random strategies
+    \item High entropy demonstration strategies
     \end{itemize}
 \item Multi-turn planning
     \begin{itemize}
@@ -134,20 +134,37 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \item Single-turn planning
     \begin{itemize}
     \item Removes compounding errors
-    \item Optimize a dialogue progress heuristic: uncertainty reduction
-    \item Requires belief
+    \item Must optimize a dialogue progress heuristic: uncertainty reduction
+    \item Requires belief with uncertainty
+    \item Still requires accurate partner model
     \end{itemize}
-\item Use what dots partner also sees as belief
+\item Research question: Can we improve partner modeling for planning
+    by compressing partner responses?
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{Planning}
 \begin{itemize}
-\item Plan by imaging partner response
-$$\max_{u} \Es{p(r \mid h, u)}{\text{Utility}(h, u, r)}$$
-\item Utterance $u$, response $r$, history $h$
-\item Utility should approximate dialogue progress
+\item Partner response depends on utterance and conversation history
+    \begin{itemize}
+    \item First history $h_0 = \text{context}$
+    \item History $h_t$, utterance $u$, response $r$
+    \item Next history $h_{t+1} = (h_t, u, r)$
+    \end{itemize}
+\begin{center}
+\begin{tikzpicture}
+\node[obs] (h) {$h$};
+\node[latent, right=of h] (r) {$r$};
+\node[obs, right=of r] (u) {$u$};
+
+\path (h) edge[->] (r);
+\path (u) edge[->] (r);
+\end{tikzpicture}
+\end{center}
+\item Plan by imagining partner response $r$
+$$\min_{u} \Es{p(r \mid h, u)}{\text{Cost}(h, u, r)}$$
+\item Cost should approximate dialogue progress
     \begin{itemize}
     \item Goal of dialogue is information gathering and coordination
     \item Focus on information gathering
@@ -162,26 +179,40 @@ $$\max_{u} \Es{p(r \mid h, u)}{\text{Utility}(h, u, r)}$$
 \item Introduce belief state $p(s \mid h)$
     \begin{itemize}
     \item State $s$ is what dots partner can also see
+    \item Response model $p(r \mid h,u,s)$ now has more conditioning
     \end{itemize}
+\begin{center}
+\begin{tikzpicture}
+\node[obs] (h) {$h$};
+\node[latent, right=of h] (s) {$s$};
+\node[latent, right=of s] (r) {$r$};
+\node[obs, right=of r] (u) {$u$};
+
+\path (h) edge[->, bend right=30] (r);
+\path (h) edge[->] (s);
+\path (s) edge[->] (r);
+\path (u) edge[->] (r);
+\end{tikzpicture}
+\end{center}
 \item Incorporate belief in planning
-$$\max_{u} \Es{p(r \mid h, u, s)p(s \mid h)}{\text{Certainty}(p(s \mid h, u, r))}$$
-\item Obtain
+$$\min_{u} \Es{p(r \mid h, u, s)p(s \mid h)}{\text{Uncertainty}(p(s \mid h, u, r))}$$
+\item Obtain belief posterior
 $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p(s \mid h)}$$
-\item Response model $p(r \mid h,u,s)$ now has more conditioning
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Partner model}
+\frametitle{Partner response model}
 \begin{itemize}
 \item Static latent state $s$: which dots do they also see
     \begin{itemize}
     \item Alternative: actual field of view
+    \item Pick $s$ that is observed during training so we can keep
+        all models supervised
     \end{itemize}
 \item Uniform prior $p(s)$ over 7 choose 4 dots partner also sees
 \item Partner response model $p(r_t \mid u_{1:t},r_{1:t-1}, s)$
     \begin{itemize}
-    \item Pick $s$ that is observed during training
     \item History $h_t = (u_{1:t-1}, r_{1:t-1})$
     \end{itemize}
 \begin{center}
@@ -214,21 +245,8 @@ $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p
 \end{itemize}
 \end{frame}
 
-
 \begin{frame}
-\frametitle{Belief update}
-\begin{itemize}
-\item Interaction history $h_t$ contains all previous utterances and responses
-\item Given an initial belief $p(s \mid h_t)$ + next utterance/response,
-    obtain next belief via
-    $$p(s \mid h_t, a_{t},o_{t})
-    \propto \underbrace{p(o_{t} \mid h_t, a_{t}, s)}_{\text{response model}}p(s\mid h_t)$$
-\item Belief calibration depends on accuracy of observation model
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Response model}
+\frametitle{Response model: Informativity}
 \begin{itemize}
 \item Example exchange
     \begin{itemize}
@@ -241,49 +259,76 @@ $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p
     \item New information injected by partner not constrained
     \item Very difficult to model new information
     \end{itemize}
+\item Introduce informativity as another variable
+\item Make worst-case assumption about informativity \textbf{during planning}
+    \begin{itemize}
+    \item Assume a limit on number of bits transmitted
+    \item Conservative lower bound on uncertainty reduction / dialogue progress
+    \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{Incorporating informativity}
 \begin{itemize}
-\item Add partner-dependent informativity $i$
-\item Determines partner willingness to give more information
-$$\max_{u} \Es{p(r \mid h, u, s, i)p(s \mid h)p(i)}{\text{Certainty}(p(s \mid h, u, r))}$$
-\item More information improves game-play
+\item Add partner-level informativity $i$ to response model
+$$p(r \mid h, u, s, i)$$
+    \begin{itemize}
+    \item Determines partner willingness to give more information
+    \item More information improves game-play
+    \end{itemize}
 \item Introduce uncertainty set over $i \in [\text{low}, \text{high}]$
-\item Optimize worst-caset informativity
+$$\min_{u}\min_{i\in[\text{low},\text{high}]}
+    \Es{p(r \mid h, u, s, i)p(s \mid h)}{\text{Uncertainty}(p(s \mid h, u, r))}$$
+\item Optimize worst-case informativity $i = \text{low}$
+\item Constrain informativity in response via discrete coding
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Response extraction}
+\frametitle{Limiting informativity with discrete coding}
 \begin{itemize}
-\item Heuristic: Use repeated mentions from response
+\item Compress response into discrete code variable $z \in [K]$
+\item Use variational information bottleneck (VIB)\footnote{\citet{vib}}
+\item Optimize mutual information objective\footnote{\citet{li}}
     \begin{itemize}
-    \item Do you see a red dot? Yes, the one next to the blue one?
+    \item Focus code $z$ on response to new information introduced by utterance $u$
+    \item But limit the information shared with response $r$ and history $h$
     \end{itemize}
-\item Generalization: TBD
-\item Recap: we have
-    \begin{itemize}
-    \item Belief over shared dots $p(y\mid h)$
-    \item Observation model $p(o \mid h,a,y)$
-    \item Update $p(y\mid h, a, o)$
-    \item Reduced to assymmetric case by extracting response only
-    \end{itemize}
-\item Next: Single-turn planning
+$$\max_\theta I(z, u; \theta) - \beta I(z, r; \theta) - \gamma I(z, h; \theta)$$
+\item Lagrange multipliers $\beta,\gamma$
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Planning: Use prior work in assymmetric setting}
+\frametitle{VIB models}
+\begin{itemize}
+\item Model $p_\theta(r, u, h, z) = p(z \mid r)p(u \mid r)$
+\end{itemize}
+\begin{center}
+\begin{tikzpicture}
+\node[obs] (h) {$h$};
+\node[latent, right=of h] (s) {$s$};
+\node[latent, right=of s] (r) {$r$};
+\node[obs, right=of r] (u) {$u$};
+
+\path (h) edge[->, bend right=30] (r);
+\path (h) edge[->] (s);
+\path (s) edge[->] (r);
+\path (u) edge[->] (r);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{Full planning details}
 \begin{itemize}
 \item Given history $h$,
 we need to chose an action $a$ by optimizing heuristic utility
 \begin{equation*}
-\max_a U(h, a)
+\min_a C(h, a)
 \end{equation*}
-\item Utility $U$ = information gain - utterance - pragmatic cost
+\item Cost $c$ = -information gain + utterance + pragmatic cost
     \begin{itemize}
     \item IG: Reduce uncertainty
     \item Utterance cost: Can't send a full paragraph
@@ -301,82 +346,28 @@ we need to chose an action $a$ by optimizing heuristic utility
 \frametitle{Expected information gain}
 \begin{itemize}
 \item Maximizing expected information gain equivalent to minimizing uncertainty
-$$\min_a \sum_o\sum_y
-    \underbrace{p(o\mid h,a,y)}_{\text{observation model}}
-    \underbrace{p(y\mid h)}_{\text{belief}}
-    \text{Uncertainty}(\underbrace{p(y \mid h,a,o)}_{\text{new belief}})$$
+$$\min_u \sum_r\sum_s
+    \underbrace{p(r\mid h,u,s)}_{\text{response model}}
+    \underbrace{p(s\mid h)}_{\text{belief}}
+    \text{Uncertainty}(\underbrace{p(s \mid h,u,r)}_{\text{new belief}})$$
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{Summary}
 \begin{itemize}
-\item Goal: Extend methods from 20 questions to symmetric, language setting
-\item Extract relevant information from partner utterances
-\item Use explicit belief state + single-turn planning heuristic
+\item Goal: Use model-based planning to improve supervised dialogue agents
+\item All models supervised (no RL)
+\item Use explicit belief state + single-turn planning heuristic to avoid
+    compounding model errors
+\item Make worst-case informativity assumption during planning
+    to improve model accuracy and conservativity
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{End}
 \end{frame}
-
-\begin{frame}
-\frametitle{Information Gain}
-\begin{itemize}
-\item A good action should decrease uncertainty
-\item Requires
-    \begin{itemize}
-    \item Belief distribution over selection item given history $p(y \mid h)$
-    \item Partner response model $p(o \mid h, a, y)$
-    \end{itemize}
-\item Represent a turn as
-\begin{center}
-\begin{tikzpicture}
-\node[obs] (h) {$h$};
-\node[latent, right=of h] (i) {$y$};
-\node[latent, above=of i] (o) {$o$};
-\node[latent, above=of h] (a) {$a$};
-\edge {h} {i};
-\edge {h} {o};
-\edge {i} {o};
-\edge {a} {o};
-\end{tikzpicture}
-\end{center}
-\item Language and planning coupled
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Decoupling language and planning}
-\begin{itemize}
-\item Compress actions $a$ and observations $o$ into language and abstract representations
-    $\tilde{a}, \tilde{o}$
-    \begin{itemize}
-    \item Language is high dimensional, redundant, and inefficient for planning
-    \end{itemize}
-\item Represent a turn as
-\begin{center}
-\begin{tikzpicture}
-\node[obs] (h) {$h$};
-\node[latent, right=of h] (i) {$i$};
-\node[latent, above=of i] (to) {$\tilde{o}$};
-\node[latent, above=of h] (ta) {$\tilde{a}$};
-\node[latent, above=of to] (o) {$o$};
-\node[latent, above=of ta] (a) {$a$};
-\edge {h} {i};
-\edge {h} {o};
-\edge {i} {to};
-\edge {ta} {a};
-\edge {ta} {to};
-\edge {to} {o};
-\edge {a} {o};
-\end{tikzpicture}
-\end{center}
-\item Abstract observation $\tilde{o} \bigCI h \mid \tilde{a}, i$
-\end{itemize}
-\end{frame}
-
 \begin{frame}
 \frametitle{Experiments}
 \begin{itemize}
