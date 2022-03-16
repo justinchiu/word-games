@@ -123,23 +123,28 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \begin{itemize}
 \item Partner modeling is hard
     \begin{itemize}
-    \item Variable amount of information
+    \item Variable amount of information in utterances
     \item High entropy demonstration strategies
     \end{itemize}
 \item Multi-turn planning
     \begin{itemize}
     \item Accuracy of planning depends greatly on the partner model
-    \item Errors from the partner model will compound over time
+    \item Errors from the partner model will compound over time\footnote{
+        Errors in planning will be a result of compounding partner model errors
+            on top of search error.
+    }
     \end{itemize}
 \item Single-turn planning
     \begin{itemize}
     \item Removes compounding errors
     \item Must optimize a dialogue progress heuristic: uncertainty reduction
     \item Requires belief with uncertainty
-    \item Still requires accurate partner model
+    \item Still requires accurate partner model\footnote{
+        Belief is function of dialogue history and partner model.
+    }
     \end{itemize}
 \item Research question: Can we improve partner modeling for planning
-    by compressing partner responses?
+    by simplifying partner responses?
 \end{itemize}
 \end{frame}
 
@@ -148,7 +153,7 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \begin{itemize}
 \item Partner response depends on utterance and conversation history
     \begin{itemize}
-    \item First history $h_0 = \text{context}$
+    \item First history $h_0 = \text{dots you can see}$
     \item History $h_t$, utterance $u$, response $r$
     \item Next history $h_{t+1} = (h_t, u, r)$
     \end{itemize}
@@ -164,19 +169,22 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \end{center}
 \item Plan by imagining partner response $r$
 $$\min_{u} \Es{p(r \mid h, u)}{\text{Cost}(h, u, r)}$$
+    \begin{itemize}
+    \item Produce utterances from prior model and rerank
+    \end{itemize}
 \item Cost should approximate dialogue progress
     \begin{itemize}
     \item Goal of dialogue is information gathering and coordination
     \item Focus on information gathering
     \end{itemize}
-\item Utility a function of belief
+\item Cost should be a function of belief
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{Planning with Belief}
 \begin{itemize}
-\item Introduce belief state $p(s \mid h)$
+\item Introduce belief $p(s \mid h)$
     \begin{itemize}
     \item State $s$ is what dots partner can also see
     \item Response model $p(r \mid h,u,s)$ now has more conditioning
@@ -196,7 +204,7 @@ $$\min_{u} \Es{p(r \mid h, u)}{\text{Cost}(h, u, r)}$$
 \end{center}
 \item Incorporate belief in planning
 $$\min_{u} \Es{p(r \mid h, u, s)p(s \mid h)}{\text{Uncertainty}(p(s \mid h, u, r))}$$
-\item Obtain belief posterior
+\item Obtain belief posterior via belief update
 $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p(s \mid h)}$$
 \end{itemize}
 \end{frame}
@@ -256,8 +264,8 @@ $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p
 \item Utterances are multifaceted
     \begin{itemize}
     \item Responses contain more information than asked
-    \item New information injected by partner not constrained
-    \item Very difficult to model new information
+    \item New information injected by partner, not constrained
+    \item Difficult to model new information
     \end{itemize}
 \item Introduce informativity as another variable
 \item Make worst-case assumption about informativity \textbf{during planning}
@@ -272,7 +280,7 @@ $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p
 \frametitle{Incorporating informativity}
 \begin{itemize}
 \item Add partner-level informativity $i$ to response model
-$$p(r \mid h, u, s, i)$$
+$p(r \mid h, u, s, i)$
     \begin{itemize}
     \item Determines partner willingness to give more information
     \item More information improves game-play
@@ -288,36 +296,140 @@ $$\min_{u}\min_{i\in[\text{low},\text{high}]}
 \begin{frame}
 \frametitle{Limiting informativity with discrete coding}
 \begin{itemize}
-\item Compress response into discrete code variable $z \in [K]$
+\item Compress response into discrete code $z \in [K]$
 \item Use variational information bottleneck (VIB)\footnote{\citet{vib}}
-\item Optimize mutual information objective\footnote{\citet{li}}
+\item Optimize mutual information objective\footnote{Closely related to the approach of \citet{li}}
     \begin{itemize}
     \item Focus code $z$ on response to new information introduced by utterance $u$
     \item But limit the information shared with response $r$ and history $h$
     \end{itemize}
 $$\max_\theta I(z, u; \theta) - \beta I(z, r; \theta) - \gamma I(z, h; \theta)$$
 \item Lagrange multipliers $\beta,\gamma$
+\item Plan with response model $p(z \mid h, u, s)$ instead of $r$
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{VIB models}
+\frametitle{Belief update}
 \begin{itemize}
-\item Model $p_\theta(r, u, h, z) = p(z \mid r)p(u \mid r)$
+\item Performing the belief update with $z$ instead of $r$ would lose information
+\item Use original model $p(r \mid h, u, s)$ to update belief?
+    \begin{itemize}
+    \item May run into original possible issue of poor calibration
+    \end{itemize}
+\item Learn another discrete representation of $r$ that does not aim
+    to disentangle
+    \begin{itemize}
+    \item Need as baseline for model with $z$
+    \item Likely adequate when combined with mentions
+    \end{itemize}
 \end{itemize}
-\begin{center}
-\begin{tikzpicture}
-\node[obs] (h) {$h$};
-\node[latent, right=of h] (s) {$s$};
-\node[latent, right=of s] (r) {$r$};
-\node[obs, right=of r] (u) {$u$};
+\end{frame}
 
-\path (h) edge[->, bend right=30] (r);
-\path (h) edge[->] (s);
-\path (s) edge[->] (r);
-\path (u) edge[->] (r);
-\end{tikzpicture}
-\end{center}
+\begin{frame}
+\frametitle{Summary}
+\begin{itemize}
+\item Goal: Show (partner) model-based planning works for dialogue with
+    purely supervised components
+    \begin{itemize}
+    \item Single-turn planning for limiting compounding model errors
+    \item Belief-based heuristic for measuring dialogue progress
+    \item Response coding for conservative planning
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Belief unit tests}
+Focus on belief calibration. Belief is a function of response model.
+\begin{itemize}
+\item Repeated information does not change belief
+    \begin{itemize}
+    \item Ask the same question twice (rephrased)
+    \end{itemize}
+\item Updates are conservative
+    \begin{itemize}
+    \item Require multiple positive answers
+        to diff questions before being certain about a dot
+    \end{itemize}
+\item Follow-up questions improve belief
+    \begin{itemize}
+    \item Want one case where first (uncertain) answer results in less information
+        and vice versa
+    \end{itemize}
+\item Multiple partner dots satisfy question
+    \begin{itemize}
+    \item Still a positive response, might be same as single satisfy
+    \item Next preferred utterance should be a follow-up in both multiple and
+        single satisfy
+    \end{itemize}
+\item High probability after confirming all neighbouring dots
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Extrinsic evaluation: Selfplay}
+Compare to fully supervised prior work
+\begin{itemize}
+\item Success rate
+    \begin{itemize}
+    \item Should be higher
+    \end{itemize}
+\item Efficiency (success / num turns)
+    \begin{itemize}
+    \item Possibly higher because more success, but more turns
+    \end{itemize}
+\item Number of repeated mentions
+    \begin{itemize}
+    \item Should be higher if policy more conservative
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Questions}
+\begin{enumerate}
+\item How do we measure belief calibration?
+    \begin{itemize}
+    \item Unit tests examining conservativity of beliefs
+    \end{itemize}
+\item How calibrated are the belief updates using various response representations?
+\item How well can we produce a range of utterances to search over?
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Response representations}
+\begin{itemize}
+\item Words in response
+    \begin{itemize}
+    \item Full response
+    \item First $k$ words of response
+    \end{itemize}
+\item Dot mentions
+    \begin{itemize}
+    \item All dot groups mentioned in response
+    \item First dot group mentioned in response
+    \end{itemize}
+\item Discrete encoding
+    \begin{itemize}
+    \item K-means cluster of sentence rep
+    \item Specialized cluster (information bottleneck)
+    \end{itemize}
+\item Continuous encoding
+    \begin{itemize}
+    \item Sentence rep
+    \item Specialized encoding (information bottleneck)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Experiment 1: }
+\end{frame}
+
+\begin{frame}
+\frametitle{End}
 \end{frame}
 
 \begin{frame}
@@ -353,21 +465,6 @@ $$\min_u \sum_r\sum_s
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Summary}
-\begin{itemize}
-\item Goal: Use model-based planning to improve supervised dialogue agents
-\item All models supervised (no RL)
-\item Use explicit belief state + single-turn planning heuristic to avoid
-    compounding model errors
-\item Make worst-case informativity assumption during planning
-    to improve model accuracy and conservativity
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{End}
-\end{frame}
 \begin{frame}
 \frametitle{Experiments}
 \begin{itemize}
@@ -439,10 +536,6 @@ $$\min_u \sum_r\sum_s
     \item Unlikely to solve strategy / over optimistism
     \end{itemize}
 \end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{End}
 \end{frame}
 
 
