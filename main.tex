@@ -341,11 +341,13 @@ $$\max_\theta I(z, u; \theta) - \beta I(z, r; \theta) - \gamma I(z, h; \theta)$$
 
 \begin{frame}
 \frametitle{Belief unit tests}
-Focus on belief calibration. Belief is a function of response model.
+Belief calibration: check belief dynamics on static conversations.
 \begin{itemize}
-\item Repeated information does not change belief
+\item Diminishing returns
     \begin{itemize}
-    \item Ask the same question twice (rephrased)
+    \item Ask the same question twice (rephrased) should not change belief
+    \item Asking about the same dot should have diminishing
+        uncertainty reduction
     \end{itemize}
 \item Updates are conservative
     \begin{itemize}
@@ -369,7 +371,7 @@ Focus on belief calibration. Belief is a function of response model.
 
 \begin{frame}
 \frametitle{Extrinsic evaluation: Selfplay}
-Compare to fully supervised prior work
+Compare to prior work (without belief)
 \begin{itemize}
 \item Success rate
     \begin{itemize}
@@ -425,8 +427,29 @@ Compare to fully supervised prior work
 \end{frame}
 
 \begin{frame}
-\frametitle{Experiment 1: }
+\frametitle{Experiment 1}
+Evaluate word response models on belief unit tests
+\begin{itemize}
+\item Belief representations
+    \begin{itemize}
+    \item Full response
+    \item First $k$ words
+    \end{itemize}
+\item Hypothesis
+    \begin{itemize}
+    \item Full response will fail all unit tests
+    \item First $k$ will fail high probability test.
+        Too conservative, will miss information
+    \end{itemize}
+\item Outcomes
+    \begin{itemize}
+    \item Too optimistic, motivating different representations
+        for exploring more conservative belief updates
+    \item Conservative, which is a success
+    \end{itemize}
+\end{itemize}
 \end{frame}
+
 
 \begin{frame}
 \frametitle{End}
