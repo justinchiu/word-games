@@ -140,7 +140,7 @@ ysep=0.2em,transform shape,line width=0.05em,top color=red,bottom color=red!50!b
 \item Single-turn planning
     \begin{itemize}
     \item Removes compounding errors
-    \item Must optimize a dialogue progress heuristic: uncertainty reduction
+    \item Must optimize a dialogue progress heuristic: reduce uncertainty
     \item Requires belief with uncertainty
     \item Still requires accurate partner model\footnote{
         Belief is function of dialogue history and partner model.
@@ -206,7 +206,7 @@ $$\min_{u} \Es{p(r \mid h, u)}{\text{Cost}(h, u, r)}$$
 \end{tikzpicture}
 \end{center}
 \item Incorporate belief in planning
-$$\min_{u} \Es{p(r \mid h, u, s)p(s \mid h)}{\text{Uncertainty}(p(s \mid h, u, r))}$$
+$$\min_{u} \Es{p(r \mid h, u, s)p(s \mid h)}{\text{Uncertainty}(p(s' \mid h, u, r))}$$
 \item Obtain belief posterior via belief update
 $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p(s \mid h)}$$
 \end{itemize}
@@ -215,11 +215,13 @@ $$p(s \mid h, u, r) = \frac{p(r \mid h, u, s)p(s \mid h)}{\sum_s p(r\mid h,u,s)p
 \begin{frame}
 \frametitle{Partner response model}
 \begin{itemize}
+\item Model their response from their perspective
 \item Static latent state $s$: which dots do they also see
     \begin{itemize}
-    \item Alternative: actual field of view
     \item Pick $s$ that is observed during training so we can keep
         all models supervised
+    \item Alternative: actual field of view
+    \item Hard to model unshared dots, pick shared dots as compromise
     \end{itemize}
 \item Uniform prior $p(s)$ over 7 choose 4 dots partner also sees
 \item Partner response model $p(r_t \mid u_{1:t},r_{1:t-1}, s)$
