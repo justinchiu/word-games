@@ -354,6 +354,11 @@ Belief calibration: check belief dynamics on static conversations.
     \item Require multiple positive answers
         to diff questions before being certain about a dot
     \end{itemize}
+\item High probability after confirming all neighbouring dots
+\end{itemize}
+\end{frame}
+
+\begin{comment}
 \item Follow-up questions improve belief
     \begin{itemize}
     \item Want one case where first (uncertain) answer results in less information
@@ -365,9 +370,7 @@ Belief calibration: check belief dynamics on static conversations.
     \item Next preferred utterance should be a follow-up in both multiple and
         single satisfy
     \end{itemize}
-\item High probability after confirming all neighbouring dots
-\end{itemize}
-\end{frame}
+\end{comment}
 
 \begin{frame}
 \frametitle{Extrinsic evaluation: Selfplay}
@@ -396,8 +399,31 @@ Compare to prior work (without belief)
     \item Unit tests examining conservativity of beliefs
     \end{itemize}
 \item How calibrated are the belief updates using various response representations?
+    \begin{itemize}
+    \item Too much information (ie full word response) results in low probability
+        to responses, which results in a large belief update = optimism
+    \item Not enough information = conservative
+    \end{itemize}
 \item How well can we produce a range of utterances to search over?
 \end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hypothesis}
+\begin{itemize}
+\item High information response representation
+    \begin{itemize}
+    \item Calibrated policy (assuming accurate model)
+    \item Hard to model responses
+    \end{itemize}
+\item Low information response representation
+    \begin{itemize}
+    \item Conservative policy (assuming accurate model)
+    \item Easy to model responses
+    \end{itemize}
+\item Prefer conservative + accuracy response model over
+    inaccurate response model
+\end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -411,7 +437,7 @@ Compare to prior work (without belief)
 \item Dot mentions
     \begin{itemize}
     \item All dot groups mentioned in response
-    \item First dot group mentioned in response
+    \item First $k$ dot groups mentioned in response
     \end{itemize}
 \item Discrete encoding
     \begin{itemize}
@@ -422,6 +448,31 @@ Compare to prior work (without belief)
     \begin{itemize}
     \item Sentence rep
     \item Specialized encoding (information bottleneck)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Experiments}
+\begin{itemize}
+\item Evaluate response representations on unit tests and selfplay
+\item Binary matrix of representation x unit test property
+\item Main unit tests
+    \begin{itemize}
+    \item Diminishing returns
+    \item Conservativity
+    \item High probability
+    \end{itemize}
+\item Representations
+    \begin{itemize}
+    \item Words
+    \item Dots
+    \item Learned (discrete, continuous)
+    \end{itemize}
+\item Consider highest and lowest information representations,
+    work our way in
+    \begin{itemize}
+    \item Hypothesize that best point is in between first dot and all dots
     \end{itemize}
 \end{itemize}
 \end{frame}
@@ -439,13 +490,69 @@ Evaluate word response models on belief unit tests
     \begin{itemize}
     \item Full response will fail all unit tests
     \item First $k$ will fail high probability test.
-        Too conservative, will miss information
+        Too conservative due to missing information
     \end{itemize}
 \item Outcomes
     \begin{itemize}
-    \item Too optimistic, motivating different representations
+    \item Full is too optimistic, motivating different representations
         for exploring more conservative belief updates
-    \item Conservative, which is a success
+    \item Full is conservative, which is a success. Method is general,
+        just need to try it on other datasets
+    \item First $k$ is too optimistic. This would indicate
+        information hypothesis is wrong, and
+        potential issues with any other subsequent representation approach.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Experiment 2}
+Evaluate dot response models on belief unit tests
+\begin{itemize}
+\item Belief representations
+    \begin{itemize}
+    \item All dot mentions
+    \item First $k$ dot mentions
+    \end{itemize}
+\item Hypothesis
+    \begin{itemize}
+    \item These might do okay on unit tests
+    \item First $k=1$ often captures responses
+    \end{itemize}
+\item Outcomes
+    \begin{itemize}
+    \item First $k$ fails due to optimism,
+        implies info hypothesis is wrong.
+    \item First $k$ succeed, which gives an indication that
+        a learned structured generalization has promise.
+        If all also succeeds, same.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Experiment 3}
+Evaluate learned discrete response models on belief unit tests
+\begin{itemize}
+\item We can tune the amount of information via number of clusters
+\item If training goes well, should be able to get a
+    fine-grained view of information - conservativity tradeoff
+\item Belief representations
+    \begin{itemize}
+    \item K-means cluster on pretrained sentence rep
+    \item Specialized cluster\footnote{\citet{li}}
+    \end{itemize}
+\item Hypothesis
+    \begin{itemize}
+    \item K-means might be pretty competitive, depending on sentence representations
+    \item K-means should be conservative, since untuned sentence reps may not
+        pick up relevant information
+    \item Specialized clusters should do better than k-means with naive sentence rep
+    \end{itemize}
+\item Outcomes
+    \begin{itemize}
+    \item If any of these succeed, selfplay and try on another dataset
+    \item If fail, end of line
     \end{itemize}
 \end{itemize}
 \end{frame}
